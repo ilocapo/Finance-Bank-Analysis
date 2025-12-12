@@ -1,37 +1,38 @@
-Analyse Comparative de Trois Banques Françaises
+Analyse comparative de banques françaises
 
 BNP Paribas • Société Générale • Crédit Agricole
 
 1. Contexte et objectif
 
-Ce projet a pour objectif d’analyser et de comparer la performance financière de trois grandes banques françaises :
-BNP Paribas, Société Générale et Crédit Agricole.
+Ce projet vise à réaliser une analyse financière comparative de trois grandes banques françaises : BNP Paribas, Société Générale et Crédit Agricole.
 
-L’étude s’appuie sur leurs états financiers publics afin d’évaluer :
+À partir de données financières publiques, l’étude cherche à évaluer et comparer :
 
-leur rentabilité,
+la rentabilité,
 
-leur solidité bilancielle,
+la solidité bilancielle,
 
-l’évolution de leur taille,
+l’évolution de la taille des bilans,
 
-leur profil de risque,
+la structure du capital,
 
-ainsi que leur trajectoire stratégique.
+et les profils de risque associés à chaque modèle bancaire.
 
-Ce projet illustre une réflexion d’analyste financier junior appliquée sur des données réelles.
+L’objectif n’est pas de produire un audit financier exhaustif, mais d’illustrer une démarche d’analyste junior, combinant données réelles, visualisation et interprétation métier.
 
-2. Sources et données
+2. Sources de données
 
-Les données proviennent de Yahoo Finance (via la bibliothèque yfinance), incluant :
+Les données utilisées proviennent de Yahoo Finance, via la bibliothèque Python yfinance.
 
-Compte de résultat
+Elles incluent principalement :
 
-Bilan
+les comptes de résultat,
 
-Historique des résultats par année
+les bilans consolidés,
 
-Les indicateurs utilisés incluent notamment :
+des données financières annuelles récentes.
+
+Indicateurs étudiés
 
 Total Revenue
 
@@ -39,76 +40,96 @@ Net Income
 
 Total Assets
 
-Total Liabilities Net Minority Interest
+Total Liabilities (Net Minority Interest)
 
-Total Stockholders Equity
+Total Stockholders’ Equity
 
 Leverage Ratio (Liabilities / Equity)
 
 3. Méthodologie
 
-Extraction des données avec yfinance
+La démarche suivie repose sur les étapes suivantes :
 
-Nettoyage et structuration via pandas
+Extraction automatisée des données financières via yfinance
 
-Visualisations et comparaisons temporelles
+Nettoyage, structuration et consolidation des données avec pandas
 
-Analyse qualitative et interprétation métier
+Analyse temporelle et comparative
 
-Formulation d’insights orientés décision
+Visualisation des tendances clés
+
+Interprétation qualitative orientée métier
+
+Synthèse des résultats dans un notebook analytique
 
 4. Principaux résultats
-Rentabilité (Net Income)
+Rentabilité Net Income
 
-BNP Paribas présente le profit le plus élevé et la plus grande stabilité, illustrant une rentabilité structurée sur un modèle mature.
+BNP Paribas affiche le niveau de bénéfice net le plus élevé et le plus stable, illustrant un modèle mature et diversifié.
 
-Crédit Agricole affiche un Net Income inférieur mais régulier, associé à une expansion prudente.
+Crédit Agricole présente une rentabilité plus modérée mais régulière, cohérente avec une croissance prudente.
 
-Société Générale montre davantage de volatilité, avec un choc significatif en 2021–2022 suivi d’un rebond, traduisant une résilience mais aussi une exposition plus forte aux évènements macro-financiers.
+Société Générale montre une volatilité plus marquée, avec un choc significatif suivi d’un redressement, traduisant à la fois résilience et exposition aux chocs externes.
 
-Taille et solidité (Total Assets)
+Taille et solidité Total Assets
 
-BNP Paribas dispose du bilan le plus important, reflétant son envergure internationale.
+BNP Paribas dispose du bilan le plus important, reflet de son envergure internationale.
 
-Crédit Agricole a un bilan légèrement plus modeste mais régulier, cohérent avec un modèle mutualiste prudent.
+Crédit Agricole affiche une croissance progressive et maîtrisée de ses actifs.
 
-Société Générale reste structurellement plus petite, avec des variations reflétant ajustements et repositionnements.
+Société Générale, structurellement plus petite, présente des variations liées à des ajustements stratégiques.
 
-Structure financière (Leverage Ratio)
+Structure financière Liabilities & Equity
 
-Les trois banques présentent des ratios de levier relativement stables.
+L’évolution conjointe des passifs et des fonds propres suggère, pour les trois banques :
 
-Cela suggère une gestion prudente de l’effet de levier, une dépendance maîtrisée aux financements externes et une discipline réglementaire forte.
+une croissance financée de manière contrôlée,
+
+une base de capital globalement stable,
+
+une gestion prudente de l’endettement, conforme aux contraintes réglementaires.
+
+Leverage Ratio
+
+Les ratios de levier restent globalement contenus sur la période observée, indiquant :
+
+une discipline capitalistique,
+
+un encadrement réglementaire efficace,
+
+une expansion financée sans prise de risque excessive.
 
 5. Interprétation métier
 
-Les résultats convergent vers plusieurs observations structurantes :
+Les résultats mettent en évidence des positionnements stratégiques distincts :
 
-Le secteur bancaire français est profondément régulé, ce qui limite les dérives d’endettement.
+BNP Paribas incarne un modèle de banque universelle, internationalisée, robuste et rentable.
 
-BNP Paribas incarne un modèle de banque universelle internationalisée, performant et stable.
+Crédit Agricole adopte une trajectoire plus prudente, alignée avec son modèle mutualiste.
 
-Crédit Agricole se distingue par une croissance modérée mais cohérente et rentable, alignée avec son modèle de banque mutualiste.
+Société Générale apparaît plus sensible aux cycles externes, mais capable de s’adapter et de se restructurer.
 
-Société Générale présente un profil plus sensible aux chocs externes, mais sa capacité de rebond indique une flexibilité opérationnelle.
+6. Limites de l’étude
 
-6. Limites
+Données issues de sources publiques, sans accès aux éléments hors bilan
 
-Les données proviennent de sources publiques et ne tiennent pas compte d’éléments hors bilan.
+Absence de ratios réglementaires détaillés
 
-Des analyses plus fines (marges segmentées, provisions, coût du risque) pourraient enrichir l’étude.
+Période d’analyse relativement courte pour certaines métriques
 
-La période observée reste courte pour certaines métriques.
+Cette étude vise à dégager des tendances macro-financières, et non à remplacer une analyse réglementaire ou comptable exhaustive.
 
 7. Pistes d’amélioration
 
-Pour une version future du projet :
+Des extensions possibles incluent :
 
-intégrer des ratios de solvabilité réglementaires (CET1, Tier 1 capital),
+l’intégration de ratios de solvabilité (CET1, Tier 1),
 
-comparer le coût du risque et les dépôts clients,
+l’analyse du coût du risque et des provisions,
 
-analyser les performances par segments (banque de détail, corporate, marchés financiers).
+la segmentation des performances par activité,
+
+la création d’un dashboard interactif (Streamlit / Power BI).
 
 8. Technologies utilisées
 
@@ -118,101 +139,59 @@ yfinance
 
 pandas
 
-matplotlib / seaborn
+matplotlib
 
 9. Structure du projet
-📁 projet_banques_francaises
-│── 01_comparaison_banques_francaises.ipynb
+projet_analyse_banques/
+│── financial_analysis.ipynb
 │── README.md
 
 10. Auteur
 
-Projet réalisé par Ilona Capo, dans une démarche d’apprentissage appliquée à l’analyse financière et au traitement de données.
+Projet réalisé par Ilona Capo, dans une démarche d’apprentissage appliquée à l’analyse financière et à la data.
 
-French Banking Sector Comparative Financial Analysis
+French Banking Sector – Comparative Financial Analysis
 Overview
 
-This project presents a comparative financial analysis of three major French banking institutions:
+This project presents a comparative financial analysis of three major French banks: BNP Paribas, Société Générale, and Crédit Agricole.
 
-BNP Paribas
+Using publicly available financial statements retrieved via yfinance, the study evaluates profitability, balance sheet structure, leverage, and strategic positioning.
 
-Société Générale
-
-Crédit Agricole
-
-The objective is to evaluate performance, risk positioning, and balance-sheet strength using publicly available financial statements retrieved via yfinance.
-
-The analysis is intended to illustrate practical financial reasoning, data manipulation, visualization, and insight generation from publicly listed firms.
+The objective is to demonstrate practical analytical reasoning, combining data processing, visualization, and business interpretation.
 
 Data Sources
 
-Data was retrieved programmatically via the Yahoo Finance API using yfinance, including:
+Data is sourced from Yahoo Finance via the yfinance Python library and includes:
 
-Income statements
+income statements
 
-Balance sheet items
+balance sheet data
 
-Stock market price history
-
-Units and reporting dates follow issuer disclosure formats.
+annual financial metrics
 
 Methodology
-1. Data Acquisition
 
-Ticker symbols for each bank were queried through yfinance.
-Financial statements were extracted, formatted, and merged into panel-style datasets.
+Programmatic data extraction
 
-2. Financial Indicators Studied
+Data cleaning and consolidation
 
-Key performance indicators include:
+Time-series comparison
 
-Total Revenue
+Financial visualization
 
-Net Income
-
-Total Assets
-
-Liabilities
-
-Total Stockholders Equity
-
-Leverage Ratio (Liabilities / Equity)
-
-3. Data Visualization
-
-Custom Matplotlib plots were created to illustrate:
-
-Net Income evolution
-
-Total Asset growth
-
-Liabilities vs Equity
-
-Leverage trajectory over time
+Business-oriented interpretation
 
 Key Insights
-BNP Paribas
 
-The largest and most stable institution among the sample.
-Consistently rising Net Income and relatively steady asset base suggest a mature universal banking model delivering resilient profitability on a large balance sheet.
+BNP Paribas emerges as the most stable and profitable institution, supported by a strong capital base.
 
-Crédit Agricole
+Crédit Agricole demonstrates controlled expansion and consistent performance.
 
-Displays controlled expansion supported by rising assets and improving profitability.
-Its cooperative structure aligns with a conservative risk posture, reflected in smoother performance metrics.
+Société Générale shows higher volatility, reflecting greater exposure to external shocks and restructuring phases.
 
-Société Générale
+Leverage ratios remain broadly stable across institutions, indicating sound capital discipline within a regulated environment.
 
-A smaller and structurally more volatile bank.
-Asset contraction in 2022 alongside sharply lower Net Income corresponds with divestment and geopolitical impacts (notably Russia exit).
-Subsequent recovery highlights resilience but exposes vulnerability to exogenous shocks.
-
-Leverage Dynamics
-
-All banks maintain relatively stable leverage levels.
-Liabilities have grown moderately faster than equity, suggesting externally-financed expansion, but stability over time indicates sound capital discipline rather than aggressive risk accumulation.
-
-Technologies & Tools
+Tools & Technologies
 
 Python
 
@@ -222,32 +201,12 @@ Matplotlib
 
 yfinance
 
-Business Interpretation Value
+Future Work
 
-This project demonstrates:
+ROE / ROA analysis
 
-Ability to source and process financial statements programmatically
+Risk-adjusted performance metrics
 
-Understanding of core bank valuation metrics
+Integration of regulatory capital ratios
 
-Capacity to articulate financial insights rather than only compute figures
-
-Practical business analysis applied to a regulated industry
-
-The style and reasoning are relevant for roles in:
-
-Data Analytics
-
-Business Analytics
-
-Financial Analysis
-
-Risk / Banking Insight roles
-
-Next Steps / Future Work
-
-Integrating stock price correlations with earnings changes
-
-Adding profitability ratios (ROE, ROA)
-
-Extending analysis to international peers
+Interactive dashboards
