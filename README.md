@@ -251,7 +251,3 @@ Integrating stock price correlations with earnings changes
 Adding profitability ratios (ROE, ROA)
 
 Extending analysis to international peers
-
-Author
-
-Ilona Capo — Data & Business Analyst student, applying analytical thinking to real financial datasets.# Finance-Bank-Analysis
