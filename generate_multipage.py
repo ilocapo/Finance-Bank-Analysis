@@ -1,13 +1,8 @@
-"""
-Dashboard multi-pages professionnel
-"""
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from datetime import datetime
 import os
 
-# Couleurs
 COLORS = {
     'BNP Paribas': '#00915A',
     'Société Générale': '#E60028', 
@@ -15,7 +10,6 @@ COLORS = {
 }
 
 def load_data():
-    """Charge et analyse les données"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(script_dir, 'data', 'banques_financials_complete.csv')
     
@@ -42,13 +36,11 @@ def load_data():
             'roe_change': roe_change,
         }
     
-    # df_complete avec toutes les colonnes (incluant les croissances)
     df_complete = df.copy()
     
     return df, df_complete, analyses, latest_year
 
 def generate_detailed_analysis(bank, df, analyses):
-    """Analyse détaillée par banque"""
     bank_data = df[df['bank'] == bank].sort_values('year')
     analysis = analyses[bank]
     
@@ -569,15 +561,16 @@ def generate_html():
         
         .nav-container {{
             background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            margin: -30px auto 30px; max-width: 1200px; position: relative; z-index: 10;
+            margin: -30px auto 30px; max-width: 1200px; position: relative; z-index: 100;
         }}
-        .nav-tabs {{ border: none; padding: 0; display: flex; }}
+        .nav-tabs {{ border: none; padding: 0; display: flex; flex-wrap: wrap; }}
         .nav-tabs .nav-link {{
             font-family: 'Outfit', sans-serif; font-weight: 500; color: #64748b;
             border: none; padding: 20px 28px; transition: all 0.3s; cursor: pointer;
+            flex: 1; text-align: center; min-width: 180px;
         }}
         .nav-tabs .nav-link:hover {{ color: #6366f1; background: #f8fafc; }}
-        .nav-tabs .nav-link.active {{ color: #6366f1; border-bottom: 3px solid #6366f1; font-weight: 600; }}
+        .nav-tabs .nav-link.active {{ color: #6366f1; border-bottom: 3px solid #6366f1; font-weight: 600; background: #f8fafc; }}
         .nav-tabs .nav-link i {{ margin-right: 8px; }}
         
         .page-section {{ display: none; animation: fadeIn 0.4s; }}
@@ -642,20 +635,23 @@ def generate_html():
             .nav-container {{ 
                 margin: -20px 10px 20px; 
                 border-radius: 8px;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
             }}
             .nav-tabs {{ 
-                flex-wrap: nowrap; 
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                flex-direction: column;
+                align-items: stretch;
             }}
             .nav-tabs .nav-link {{ 
                 padding: 16px 20px; 
-                font-size: 0.9rem;
-                white-space: nowrap;
+                font-size: 0.95rem;
+                border-bottom: 1px solid #f1f5f9;
+                text-align: left;
+                min-width: auto;
             }}
-            .nav-tabs .nav-link i {{ display: none; }}
+            .nav-tabs .nav-link.active {{
+                border-bottom: 1px solid #f1f5f9;
+                border-left: 4px solid #6366f1;
+            }}
+            .nav-tabs .nav-link:last-child {{ border-bottom: none; }}
             
             .container {{ padding: 0 15px; }}
             .section {{ padding: 20px; margin: 15px 0; border-radius: 8px; }}
@@ -1025,8 +1021,8 @@ def generate_html():
     </div>
     
     <div class="footer">
-        <h4><i class="fas fa-graduation-cap"></i> Projet Portfolio Data Science</h4>
-        <p>Analyse financière approfondie des banques françaises</p>
+        <h4><i class="fas fa-chart-line"></i> Dashboard Financier</h4>
+        <p>Analyse des Banques Françaises</p>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1046,13 +1042,12 @@ def generate_html():
 </html>
 """
     
-    # Sauvegarder
     output_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs', 'index.html')
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"\n{'='*60}")
-    print(f"Dashboard multi-pages généré: {output_file}")
+    print(f"{'='*60}")
+    print(f"Dashboard généré: {output_file}")
     print(f"{'='*60}")
     
     return output_file
