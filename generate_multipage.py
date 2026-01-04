@@ -113,11 +113,20 @@ def create_roe_chart(df):
         ))
     fig.update_layout(
         title='Évolution du Return on Equity (ROE)',
-        xaxis_title='Année',
+        xaxis_title='Évolution',
         yaxis_title='ROE',
-        height=500, 
+        height=400, 
         template='plotly_white',
-        hovermode='x unified'
+        hovermode='x unified',
+        margin=dict(l=50, r=20, t=60, b=50),
+        font=dict(size=11),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.3,
+            xanchor="center",
+            x=0.5
+        )
     )
     return fig
 
@@ -125,7 +134,8 @@ def create_growth_charts(df):
     """Graphiques de croissance"""
     fig = make_subplots(
         rows=1, cols=3,
-        subplot_titles=('Croissance des Revenus (%)', 'Croissance du Bénéfice Net (%)', 'Croissance des Actifs (%)')
+        subplot_titles=('Revenus', 'Bénéfice', 'Actifs'),
+        horizontal_spacing=0.08
     )
     
     for i, metric in enumerate([('revenue_growth', 'Revenus'), 
@@ -140,25 +150,39 @@ def create_growth_charts(df):
                     mode='lines+markers',
                     name=bank,
                     showlegend=(i==1),
-                    line=dict(color=COLORS.get(bank, '#000'), width=2)
+                    line=dict(color=COLORS.get(bank, '#000'), width=2),
+                    marker=dict(size=6)
                 ),
                 row=1, col=i
             )
         fig.add_hline(y=0, line_dash="dash", line_color="gray", row=1, col=i)
     
     fig.update_layout(
-        title_text="Analyse des Taux de Croissance Année sur Année",
-        height=500,
+        title_text="Taux de Croissance Année sur Année (%)",
+        height=400,
         template='plotly_white',
-        hovermode='x unified'
+        hovermode='x unified',
+        margin=dict(l=40, r=20, t=80, b=50),
+        font=dict(size=10),
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.25,
+            xanchor="center",
+            x=0.5
+        )
     )
+    fig.update_xaxes(tickfont=dict(size=9))
+    fig.update_yaxes(tickfont=dict(size=9))
     return fig
 
 def create_box_plots(df):
     """Box plots pour distribution"""
     fig = make_subplots(
         rows=1, cols=3,
-        subplot_titles=('Distribution du ROE', 'Distribution du ROA', 'Distribution de la Marge')
+        subplot_titles=('ROE', 'ROA', 'Marge'),
+        horizontal_spacing=0.1
     )
     
     for i, metric in enumerate([('roe', 'ROE'), ('roa', 'ROA'), ('profit_margin', 'Marge (%)')], 1):
@@ -171,10 +195,21 @@ def create_box_plots(df):
             )
     
     fig.update_layout(
-        title_text="Distribution des Indicateurs - Analyse de la Volatilité",
-        height=500,
-        template='plotly_white'
+        title_text="Distribution et Volatilité",
+        height=400,
+        template='plotly_white',
+        margin=dict(l=40, r=20, t=80, b=50),
+        font=dict(size=10),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.25,
+            xanchor="center",
+            x=0.5
+        )
     )
+    fig.update_xaxes(tickfont=dict(size=9))
+    fig.update_yaxes(tickfont=dict(size=9))
     return fig
 
 def create_radar_chart(df, latest_year):
@@ -192,7 +227,7 @@ def create_radar_chart(df, latest_year):
     
     fig = go.Figure()
     
-    categories = ['ROE', 'ROA', 'Marge Bénéf.', 'Equity Ratio', 'Solidité (1/Levier)']
+    categories = ['ROE', 'ROA', 'Marge', 'Equity', 'Solidité']
     
     for bank in df_latest["bank"].unique():
         bank_data = df_latest[df_latest["bank"] == bank].iloc[0]
@@ -214,9 +249,21 @@ def create_radar_chart(df, latest_year):
     
     fig.update_layout(
         title=f'Performance Multi-dimensionnelle - {latest_year}',
-        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-        height=600,
-        template='plotly_white'
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 1], tickfont=dict(size=9)),
+            angularaxis=dict(tickfont=dict(size=10))
+        ),
+        height=450,
+        template='plotly_white',
+        margin=dict(l=60, r=60, t=80, b=60),
+        font=dict(size=10),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.15,
+            xanchor="center",
+            x=0.5
+        )
     )
     return fig
 
@@ -232,12 +279,13 @@ def create_risk_return_scatter(df):
             y=bank_data["roe"],
             mode='markers+text',
             name=bank,
-            text=bank_data["year"],
+            text=bank_data["year"].astype(str).str[-2:],
             textposition="top center",
+            textfont=dict(size=9),
             marker=dict(
                 size=12,
                 color=COLORS.get(bank, '#000'),
-                line=dict(width=2, color='white')
+                line=dict(width=1, color='white')
             )
         ))
     
@@ -245,11 +293,20 @@ def create_risk_return_scatter(df):
     fig.add_hline(y=df["roe"].median(), line_dash="dash", line_color="gray", opacity=0.5)
     
     fig.update_layout(
-        title="Relation Risque-Rendement : ROE vs Ratio de Levier",
-        xaxis_title="Ratio de Levier (Risque →)",
-        yaxis_title="ROE (Rendement →)",
+        title="Risque-Rendement : ROE vs Levier",
+        xaxis_title="Levier",
+        yaxis_title="ROE",
         template='plotly_white',
-        height=600
+        height=450,
+        margin=dict(l=50, r=20, t=60, b=50),
+        font=dict(size=10),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.25,
+            xanchor="center",
+            x=0.5
+        )
     )
     return fig
 
@@ -257,8 +314,10 @@ def create_financial_structure_charts(df):
     """Graphiques structure financière"""
     fig = make_subplots(
         rows=2, cols=2,
-        subplot_titles=('Ratio de Levier', 'Equity Ratio (%)', 
-                        'Actifs Totaux (Mds €)', 'Capitaux Propres (Mds €)')
+        subplot_titles=('Levier', 'Equity Ratio', 
+                        'Actifs (Mds $)', 'Fonds Propres (Mds $)'),
+        vertical_spacing=0.12,
+        horizontal_spacing=0.1
     )
     
     for bank in df["bank"].unique():
@@ -267,36 +326,51 @@ def create_financial_structure_charts(df):
         fig.add_trace(
             go.Scatter(x=bank_data["year"], y=bank_data["leverage_ratio"],
                       mode='lines+markers', name=bank, showlegend=False,
-                      line=dict(color=COLORS.get(bank, '#000'))),
+                      line=dict(color=COLORS.get(bank, '#000')),
+                      marker=dict(size=6)),
             row=1, col=1
         )
         
         fig.add_trace(
             go.Scatter(x=bank_data["year"], y=bank_data["equity_ratio"],
                       mode='lines+markers', name=bank, showlegend=False,
-                      line=dict(color=COLORS.get(bank, '#000'))),
+                      line=dict(color=COLORS.get(bank, '#000')),
+                      marker=dict(size=6)),
             row=1, col=2
         )
         
         fig.add_trace(
             go.Scatter(x=bank_data["year"], y=bank_data["Total Assets"]/1e9,
                       mode='lines+markers', name=bank, showlegend=True,
-                      line=dict(color=COLORS.get(bank, '#000'))),
+                      line=dict(color=COLORS.get(bank, '#000')),
+                      marker=dict(size=6)),
             row=2, col=1
         )
         
         fig.add_trace(
             go.Scatter(x=bank_data["year"], y=bank_data["Stockholders Equity"]/1e9,
                       mode='lines+markers', name=bank, showlegend=False,
-                      line=dict(color=COLORS.get(bank, '#000'))),
+                      line=dict(color=COLORS.get(bank, '#000')),
+                      marker=dict(size=6)),
             row=2, col=2
         )
     
     fig.update_layout(
-        title_text="Analyse de la Structure Financière et de la Solidité",
-        height=800,
-        template='plotly_white'
+        title_text="Structure Financière",
+        height=600,
+        template='plotly_white',
+        margin=dict(l=40, r=20, t=80, b=50),
+        font=dict(size=10),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.12,
+            xanchor="center",
+            x=0.5
+        )
     )
+    fig.update_xaxes(tickfont=dict(size=9))
+    fig.update_yaxes(tickfont=dict(size=9))
     return fig
 
 def generate_html():
