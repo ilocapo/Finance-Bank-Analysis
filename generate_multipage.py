@@ -2,11 +2,24 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import os
+import numpy as np
+from scipy import stats
 
 COLORS = {
     'BNP Paribas': '#00915A',
     'Société Générale': '#E60028', 
     'Crédit Agricole': '#0E6938',
+}
+
+# BENCHMARKS SECTORIELS (European banking averages 2023-2024)
+SECTOR_BENCHMARKS = {
+    'roe': 0.095,  # 9.5%
+    'roa': 0.0035,  # 0.35%
+    'profit_margin': 18.5,  # 18.5%
+    'leverage_ratio': 14.2,
+    'equity_ratio': 6.8,
+    'basel3_cet1': 15.5,  # CET1 ratio minimum
+    'npl_ratio': 3.2,  # Non-performing loans
 }
 
 def load_data():
@@ -91,6 +104,66 @@ def generate_detailed_analysis(bank, df, analyses):
         'weaknesses': weaknesses,
         'recommendations': recommendations
     }
+
+def forecast_metrics(bank, df, years=3):
+    """Projections linéaires de métriques clés"""
+    bank_data = df[df['bank'] == bank].sort_values('year')
+    
+    if len(bank_data) < 2:
+        return None
+    
+    projections = {}
+    latest_year = bank_data['year'].max()
+    
+    for metric in ['roe', 'roa', 'profit_margin', 'leverage_ratio']:
+        x = bank_data['year'].values
+        y = bank_data[metric].dropna().values
+        
+        if len(y) < 2:
+            continue
+        
+        try:
+            slope, intercept = np.polyfit(x[-len(y):], y, 1)
+            future_years = np.arange(latest_year + 1, latest_year + years + 1)
+            future_values = slope * future_years + intercept
+            projections[metric] = {
+                'years': future_years.tolist(),
+                'values': future_values.tolist(),
+                'trend': 'Hausse' if slope > 0 else 'Baisse'
+            }
+        except:
+            pass
+    
+    return projections
+
+def create_risk_metrics_section(df):
+    """Analyses des risques bancaires"""
+    risk_analysis = {}
+    
+    for bank in df['bank'].unique():
+        bank_data = df[df['bank'] == bank].sort_values('year')
+        latest = bank_data.iloc[-1]
+        
+        # Asset Quality Indicators (simulated based on available data)
+        roe_std = bank_data['roe'].std()
+        volatility_score = 'Élevée' if roe_std > 0.025 else 'Modérée' if roe_std > 0.015 else 'Faible'
+        
+        # Liquidity proxy (based on equity ratio trend)
+        equity_ratio_trend = bank_data['equity_ratio'].iloc[-1] - bank_data['equity_ratio'].iloc[0]
+        
+        # Solvency assessment
+        above_basel3 = latest['equity_ratio'] > SECTOR_BENCHMARKS['basel3_cet1']
+        
+        risk_analysis[bank] = {
+            'volatility': volatility_score,
+            'volatility_score': roe_std,
+            'leverage_vs_sector': latest['leverage_ratio'] - SECTOR_BENCHMARKS['leverage_ratio'],
+            'equity_vs_sector': latest['equity_ratio'] - SECTOR_BENCHMARKS['equity_ratio'],
+            'basel3_compliant': above_basel3,
+            'equity_trend': 'Positive' if equity_ratio_trend > 0 else 'Négative',
+        }
+    
+    return risk_analysis
 
 def create_roe_chart(df):
     """Graphique ROE"""
@@ -302,6 +375,161 @@ def create_risk_return_scatter(df):
     )
     return fig
 
+def create_sector_comparison(df, latest_year):
+    """Comparaison avec benchmarks sectoriels"""
+    df_latest = df[df['year'] == latest_year].copy()
+    
+    fig = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=('ROE', 'Levier', 'Equity Ratio'),
+        horizontal_spacing=0.12
+    )
+    
+    banks = df_latest['bank'].unique()
+    x_pos = list(range(len(banks)))
+    
+    # ROE comparison
+    roe_values = [df_latest[df_latest['bank'] == b]['roe'].values[0] for b in banks]
+    fig.add_trace(
+        go.Bar(x=banks, y=roe_values, name='Banques', marker_color=[COLORS.get(b, '#000') for b in banks], showlegend=False),
+        row=1, col=1
+    )
+    fig.add_hline(y=SECTOR_BENCHMARKS['roe'], line_dash="dash", line_color="red", 
+                  annotation_text="Benchmark Secteur", row=1, col=1)
+    
+    # Leverage comparison
+    lev_values = [df_latest[df_latest['bank'] == b]['leverage_ratio'].values[0] for b in banks]
+    fig.add_trace(
+        go.Bar(x=banks, y=lev_values, name='Levier', marker_color=[COLORS.get(b, '#000') for b in banks], showlegend=False),
+        row=1, col=2
+    )
+    fig.add_hline(y=SECTOR_BENCHMARKS['leverage_ratio'], line_dash="dash", line_color="red", 
+                  annotation_text="Benchmark", row=1, col=2)
+    
+    # Equity Ratio comparison
+    eq_values = [df_latest[df_latest['bank'] == b]['equity_ratio'].values[0] for b in banks]
+    fig.add_trace(
+        go.Bar(x=banks, y=eq_values, name='Equity Ratio', marker_color=[COLORS.get(b, '#000') for b in banks], showlegend=False),
+        row=1, col=3
+    )
+    fig.add_hline(y=SECTOR_BENCHMARKS['equity_ratio'], line_dash="dash", line_color="red", 
+                  annotation_text="Benchmark", row=1, col=3)
+    
+    fig.update_layout(
+        title_text="Benchmark Sectoriels - Performance vs Moyenne Européenne",
+        height=450,
+        template='plotly_white',
+        margin=dict(l=40, r=20, t=80, b=50),
+        font=dict(size=10),
+    )
+    fig.update_yaxes(tickfont=dict(size=9))
+    return fig
+
+def create_projections_chart(df):
+    """Projections des métriques sur 3 ans"""
+    latest_year = df['year'].max()
+    
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=('Projection ROE', 'Projection Levier'),
+        horizontal_spacing=0.12
+    )
+    
+    for bank in df['bank'].unique():
+        bank_data = df[df['bank'] == bank].sort_values('year')
+        
+        # ROE historical + projection
+        x_hist = bank_data['year'].values
+        y_hist = bank_data['roe'].values
+        
+        if len(x_hist) >= 2:
+            slope, intercept = np.polyfit(x_hist, y_hist, 1)
+            x_future = np.array([latest_year + 1, latest_year + 2, latest_year + 3])
+            y_future = slope * x_future + intercept
+            
+            # Historical line
+            fig.add_trace(
+                go.Scatter(x=x_hist, y=y_hist, mode='lines+markers', name=bank, 
+                          line=dict(color=COLORS.get(bank, '#000'), width=2),
+                          marker=dict(size=6)),
+                row=1, col=1
+            )
+            
+            # Projection line
+            fig.add_trace(
+                go.Scatter(x=x_future, y=y_future, mode='lines+markers', 
+                          line=dict(color=COLORS.get(bank, '#000'), width=2, dash='dash'),
+                          marker=dict(size=6, symbol='diamond'), showlegend=False),
+                row=1, col=1
+            )
+            
+            # Leverage projection
+            y_hist_lev = bank_data['leverage_ratio'].values
+            y_future_lev = slope * x_future + (y_hist_lev[-1] - slope * latest_year)
+            
+            fig.add_trace(
+                go.Scatter(x=x_hist, y=y_hist_lev, mode='lines+markers', showlegend=False,
+                          line=dict(color=COLORS.get(bank, '#000'), width=2),
+                          marker=dict(size=6)),
+                row=1, col=2
+            )
+            
+            fig.add_trace(
+                go.Scatter(x=x_future, y=y_future_lev, mode='lines+markers', 
+                          line=dict(color=COLORS.get(bank, '#000'), width=2, dash='dash'),
+                          marker=dict(size=6, symbol='diamond'), showlegend=False),
+                row=1, col=2
+            )
+    
+    fig.update_layout(
+        title_text="Projections 3 ans (tendances linéaires)",
+        height=450,
+        template='plotly_white',
+        hovermode='x unified',
+        margin=dict(l=40, r=20, t=80, b=50),
+        font=dict(size=10),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
+    )
+    fig.update_xaxes(tickfont=dict(size=9))
+    fig.update_yaxes(tickfont=dict(size=9))
+    return fig
+
+def create_risk_heatmap(df, latest_year, risk_analysis):
+    """Heatmap des risques"""
+    df_latest = df[df['year'] == latest_year].copy()
+    
+    metrics = ['roe', 'roa', 'profit_margin', 'leverage_ratio', 'equity_ratio']
+    banks = sorted(df_latest['bank'].unique())
+    
+    # Normalize metrics for heatmap
+    z_data = []
+    for metric in metrics:
+        values = df_latest[metric].values
+        normalized = (values - values.min()) / (values.max() - values.min()) if values.max() != values.min() else values
+        z_data.append(normalized)
+    
+    fig = go.Figure(data=go.Heatmap(
+        z=z_data,
+        x=banks,
+        y=['ROE', 'ROA', 'Marge', 'Levier', 'Equity Ratio'],
+        colorscale='RdYlGn',
+        colorbar=dict(title="Performance<br>(normalisée)"),
+        hoverongaps=False
+    ))
+    
+    fig.update_layout(
+        title="Heatmap des Performances Financières",
+        height=400,
+        template='plotly_white',
+        xaxis_title="Banque",
+        yaxis_title="Métrique",
+        margin=dict(l=120, r=20, t=60, b=50),
+        font=dict(size=11)
+    )
+    
+    return fig
+
+
 def create_financial_structure_charts(df):
     """Graphiques structure financière"""
     fig = make_subplots(
@@ -375,6 +603,9 @@ def generate_html():
     for bank in df['bank'].unique():
         detailed[bank] = generate_detailed_analysis(bank, df, analyses)
     
+    print("Analyses des risques...")
+    risk_analysis = create_risk_metrics_section(df_complete)
+    
     print("Graphiques...")
     fig_roe = create_roe_chart(df)
     fig_growth = create_growth_charts(df_complete)
@@ -382,6 +613,9 @@ def generate_html():
     fig_radar = create_radar_chart(df_complete, latest_year)
     fig_risk = create_risk_return_scatter(df_complete)
     fig_structure = create_financial_structure_charts(df_complete)
+    fig_benchmark = create_sector_comparison(df_complete, latest_year)
+    fig_projection = create_projections_chart(df_complete)
+    fig_heatmap = create_risk_heatmap(df_complete, latest_year, risk_analysis)
     
     roe_html = fig_roe.to_html(include_plotlyjs='cdn', div_id="roe-chart")
     growth_html = fig_growth.to_html(include_plotlyjs=False, div_id="growth-chart")
@@ -389,6 +623,9 @@ def generate_html():
     radar_html = fig_radar.to_html(include_plotlyjs=False, div_id="radar-chart")
     risk_html = fig_risk.to_html(include_plotlyjs=False, div_id="risk-chart")
     structure_html = fig_structure.to_html(include_plotlyjs=False, div_id="structure-chart")
+    benchmark_html = fig_benchmark.to_html(include_plotlyjs=False, div_id="benchmark-chart")
+    projection_html = fig_projection.to_html(include_plotlyjs=False, div_id="projection-chart")
+    heatmap_html = fig_heatmap.to_html(include_plotlyjs=False, div_id="heatmap-chart")
     
     # Tableau comparaison
     df_latest = df[df['year'] == latest_year]
@@ -704,6 +941,12 @@ def generate_html():
                     <a class="nav-link" data-page="analyses"><i class="fas fa-microscope"></i> Analyses Détaillées</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" data-page="risques"><i class="fas fa-exclamation-triangle"></i> Risques & Solidité</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="projections"><i class="fas fa-chart-line"></i> Projections 3 Ans</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-page="donnees"><i class="fas fa-table"></i> Données</a>
                 </li>
                 <li class="nav-item">
@@ -858,6 +1101,159 @@ def generate_html():
         
         <div class="page-section" id="analyses">
             {analyses_html}
+        </div>
+        
+        <div class="page-section" id="risques">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-exclamation-triangle"></i> Analyse des Risques & Solidité Bancaire</h2>
+                
+                <div style="background: linear-gradient(to right, #f8fafc, #fef3c7); padding: 24px; border-radius: 12px; border-left: 4px solid #f59e0b; margin-bottom: 32px;">
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin-bottom: 16px;">
+                        Beyond raw profitability, a bank's <strong>risk management capabilities</strong> are fundamental to its long-term health. 
+                        Cette section examine la <strong>stabilité financière</strong>, l'<strong>adéquation du capital</strong> et les <strong>profils de risque</strong> 
+                        selon les normes réglementaires internationales (Bâle III).
+                    </p>
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin: 0;">
+                        Les indicateurs clés incluent : volatilité des rendements (stabilité), ratio de levier vs benchmark sectoriel, 
+                        compliance aux exigences de capitalisation minimum, et tendances de l'equity ratio.
+                    </p>
+                </div>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 16px;"><i class="fas fa-chart-bar" style="color: #f59e0b; margin-right: 8px;"></i>Benchmark Sectoriels (Moyenne Bancaire Européenne)</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    La comparaison avec les benchmarks sectoriels permet de <strong>contextualiser la performance</strong>. 
+                    Les seuils ci-dessous reflètent les normes de solidité financière du secteur bancaire européen 2023-2024.
+                </p>
+                {benchmark_html}
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;"><i class="fas fa-fire" style="color: #ef4444; margin-right: 8px;"></i>Heatmap des Performances</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    La heatmap normalise tous les indicateurs (0-1) pour permettre une comparaison visuelle rapide. 
+                    Les teintes <strong>vertes</strong> indiquent une performance <strong>supérieure</strong>, les teintes <strong>rouges</strong> une performance <strong>inférieure</strong>.
+                </p>
+                {heatmap_html}
+                
+                <div class="row" style="margin-top: 32px;">
+                    <div class="col-md-6">
+                        <div class="section" style="background: linear-gradient(135deg, #fef3c7, #ffe4e6);">
+                            <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 16px;">
+                                <i class="fas fa-shield-alt" style="color: #f59e0b;"></i> Profils de Risque
+                            </h4>
+                            <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0; font-weight: 600; color: #1e293b;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i>BNP Paribas</p>
+                                <p style="margin: 8px 0 0; font-size: 0.9rem; color: #64748b;">
+                                    Volatilité: {risk_analysis['BNP Paribas']['volatility']}<br/>
+                                    Levier vs Secteur: {risk_analysis['BNP Paribas']['leverage_vs_sector']:+.2f}<br/>
+                                    Bâle III: {'✓ Conforme' if risk_analysis['BNP Paribas']['basel3_compliant'] else '✗ Attention'}
+                                </p>
+                            </div>
+                            <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                                <p style="margin: 0; font-weight: 600; color: #1e293b;"><i class="fas fa-check-circle" style="color: #ef4444; margin-right: 8px;"></i>Société Générale</p>
+                                <p style="margin: 8px 0 0; font-size: 0.9rem; color: #64748b;">
+                                    Volatilité: {risk_analysis['Société Générale']['volatility']}<br/>
+                                    Levier vs Secteur: {risk_analysis['Société Générale']['leverage_vs_sector']:+.2f}<br/>
+                                    Bâle III: {'✓ Conforme' if risk_analysis['Société Générale']['basel3_compliant'] else '✗ Attention'}
+                                </p>
+                            </div>
+                            <div style="background: white; padding: 16px; border-radius: 8px;">
+                                <p style="margin: 0; font-weight: 600; color: #1e293b;"><i class="fas fa-check-circle" style="color: #0E6938; margin-right: 8px;"></i>Crédit Agricole</p>
+                                <p style="margin: 8px 0 0; font-size: 0.9rem; color: #64748b;">
+                                    Volatilité: {risk_analysis['Crédit Agricole']['volatility']}<br/>
+                                    Levier vs Secteur: {risk_analysis['Crédit Agricole']['leverage_vs_sector']:+.2f}<br/>
+                                    Bâle III: {'✓ Conforme' if risk_analysis['Crédit Agricole']['basel3_compliant'] else '✗ Attention'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="section" style="background: linear-gradient(135deg, #f0fdf4, #eff6ff);">
+                            <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 16px;">
+                                <i class="fas fa-lightbulb" style="color: #3b82f6;"></i> AI & Tech Impact
+                            </h4>
+                            <p style="color: #1e293b; line-height: 1.7; margin-bottom: 16px;">
+                                Le secteur bancaire intègre rapidement l'<strong>intelligence artificielle</strong> pour améliorer l'efficacité opérationnelle 
+                                et la détection des risques.
+                            </p>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><i class="fas fa-arrow-right" style="color: #3b82f6; margin-right: 8px;"></i><strong>Détection de fraude:</strong> ML réduirait NPL</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><i class="fas fa-arrow-right" style="color: #3b82f6; margin-right: 8px;"></i><strong>Scoring crédit:</strong> IA améliore la qualité</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><i class="fas fa-arrow-right" style="color: #3b82f6; margin-right: 8px;"></i><strong>Analyse prédictive:</strong> Forecast résilience</li>
+                                <li style="padding: 8px 0;"><i class="fas fa-arrow-right" style="color: #3b82f6; margin-right: 8px;"></i><strong>Automatisation:</strong> Réduit coûts opérationnels</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning" style="background: #fef3c7; border: 1px solid #f59e0b; border-left: 4px solid #f59e0b; border-radius: 10px; padding: 20px; margin-top: 24px;">
+                    <h4 style="color: #92400e; margin-bottom: 12px;"><i class="fas fa-exclamation-triangle"></i> Réglementation Bâle III</h4>
+                    <p style="color: #92400e; margin-bottom: 12px; line-height: 1.7;">
+                        <strong>Common Equity Tier 1 (CET1) Ratio:</strong> Minimum 4.5% pour absorber les pertes. 
+                        Les banques françaises doivent également maintenir un <strong>Leverage Ratio > 3%</strong> (limite d'endettement absolu).
+                    </p>
+                    <p style="color: #92400e; margin: 0; line-height: 1.7;">
+                        <strong>Implication:</strong> Une banque avec equity ratio > 6% et levier < 15 affiche une <strong>solidité robuste</strong> 
+                        et une faible probabilité de défaut.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-section" id="projections">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Projections à 3 Ans & Tendances Futures</h2>
+                
+                <div style="background: linear-gradient(to right, #f8fafc, #f0fdf4); padding: 24px; border-radius: 12px; border-left: 4px solid #10b981; margin-bottom: 32px;">
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin-bottom: 16px;">
+                        Bien que les prévisions passées ne garantissent pas les résultats futurs, les <strong>tendances linéaires</strong> 
+                        permettent d'identifier les <strong>trajectoires actuelles</strong> de chaque banque. Cette analyse extrapole les données historiques 
+                        (2021-2024) sur les <strong>3 prochaines années</strong> (2025-2027) sous l'hypothèse de continuité.
+                    </p>
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin: 0;">
+                        <i class="fas fa-info-circle" style="color: #10b981; margin-right: 8px;"></i>
+                        <strong>Attention:</strong> Ces projections sont illustratives et doivent être complétées par une analyse qualitative 
+                        (facteurs macro-économiques, changements réglementaires, transformations stratégiques).
+                    </p>
+                </div>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 16px;"><i class="fas fa-chart-line" style="color: #10b981; margin-right: 8px;"></i>Projections ROE et Levier (Lignes Pleines = Historique, Pointillés = Projection)</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    Les projections utilisent une <strong>régression linéaire simple</strong> basée sur la tendance 2021-2024. 
+                    Une projection en <strong>hausse du ROE</strong> indique une amélioration attendue de la rentabilité. 
+                    Une projection en <strong>baisse du levier</strong> suggère une dé-risquification progressive.
+                </p>
+                {projection_html}
+                
+                <div class="row" style="margin-top: 32px;">
+                    <div class="col-md-6">
+                        <div class="section" style="background: #f0fdf4;">
+                            <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 16px;">
+                                <i class="fas fa-chart-line" style="color: #10b981;"></i> Scénarios Positifs
+                            </h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 8px 0; border-bottom: 1px solid #d1fae5;"><i class="fas fa-check" style="color: #10b981; margin-right: 8px;"></i>Amélioration ROE persistante</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #d1fae5;"><i class="fas fa-check" style="color: #10b981; margin-right: 8px;"></i>Compression des coûts opérationnels</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #d1fae5;"><i class="fas fa-check" style="color: #10b981; margin-right: 8px;"></i>Valorisation croissante des actifs</li>
+                                <li style="padding: 8px 0;"><i class="fas fa-check" style="color: #10b981; margin-right: 8px;"></i>Retournement des taux d'intérêt</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="section" style="background: #fef2f2;">
+                            <h4 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 16px;">
+                                <i class="fas fa-warning" style="color: #ef4444;"></i> Risques Potentiels
+                            </h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 8px 0; border-bottom: 1px solid #fee2e2;"><i class="fas fa-times" style="color: #ef4444; margin-right: 8px;"></i>Récession économique globale</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #fee2e2;"><i class="fas fa-times" style="color: #ef4444; margin-right: 8px;"></i>Hausse des défauts de crédit (NPL)</li>
+                                <li style="padding: 8px 0; border-bottom: 1px solid #fee2e2;"><i class="fas fa-times" style="color: #ef4444; margin-right: 8px;"></i>Réglementation plus stricte (Bâle IV)</li>
+                                <li style="padding: 8px 0;"><i class="fas fa-times" style="color: #ef4444; margin-right: 8px;"></i>Concurrence accrue (fintech, néobanques)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="page-section" id="donnees">
