@@ -546,7 +546,7 @@ def generate_html():
                     </div>
                 </div>
                 
-                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 32px 0 16px;">📈 Évolution du ROE</h3>
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 32px 0 16px;"><i class="fas fa-chart-line" style="color: #6366f1; margin-right: 8px;"></i>Évolution du ROE</h3>
                 <p style="color: #64748b; line-height: 1.7;">
                     Le <strong>Return on Equity (ROE)</strong> mesure la rentabilité des capitaux propres. 
                     Un ROE > 10% est considéré comme excellent dans le secteur bancaire. Ce graphique permet 
@@ -554,7 +554,7 @@ def generate_html():
                 </p>
                 {roe_html}
                 
-                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">📊 Analyse des Taux de Croissance</h3>
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;"><i class="fas fa-chart-bar" style="color: #6366f1; margin-right: 8px;"></i>Analyse des Taux de Croissance</h3>
                 <p style="color: #64748b; line-height: 1.7;">
                     La croissance des revenus, du bénéfice net et des actifs révèle la <strong>dynamique</strong> 
                     et la <strong>résilience</strong> de chaque banque. Une croissance du bénéfice supérieure à 
@@ -562,7 +562,7 @@ def generate_html():
                 </p>
                 {growth_html}
                 
-                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">📉 Distribution et Volatilité</h3>
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;"><i class="fas fa-chart-area" style="color: #6366f1; margin-right: 8px;"></i>Distribution et Volatilité</h3>
                 <p style="color: #64748b; line-height: 1.7;">
                     Les box plots révèlent la <strong>consistance</strong> de la performance. Une boîte étroite 
                     indique une performance stable et prévisible, tandis qu'une boîte large suggère une forte 
@@ -595,7 +595,7 @@ def generate_html():
                     </tbody>
                 </table>
                 
-                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">🎯 Performance Multi-dimensionnelle</h3>
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;"><i class="fas fa-bullseye" style="color: #6366f1; margin-right: 8px;"></i>Performance Multi-dimensionnelle</h3>
                 <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
                     Le graphique radar offre une <strong>vue d'ensemble synthétique</strong> en comparant 
                     simultanément 5 dimensions de performance. Plus la surface couverte est grande, meilleure 
@@ -603,22 +603,22 @@ def generate_html():
                 </p>
                 {radar_html}
                 
-                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">⚖️ Trade-off Risque-Rendement</h3>
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;"><i class="fas fa-balance-scale" style="color: #6366f1; margin-right: 8px;"></i>Trade-off Risque-Rendement</h3>
                 <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
                     Ce graphique illustre le <strong>compromis fondamental</strong> entre risque (levier) et 
                     rendement (ROE). Les lignes médianes divisent l'espace en 4 quadrants stratégiques :
                 </p>
                 <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
                     <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 8px 0;">✅ <strong>Haut-Gauche</strong> : ROE élevé + Levier faible = Profil idéal</li>
-                        <li style="padding: 8px 0;">⚠️ <strong>Haut-Droit</strong> : ROE élevé + Levier élevé = Performance forte mais risquée</li>
-                        <li style="padding: 8px 0;">📊 <strong>Bas-Gauche</strong> : ROE faible + Levier faible = Prudent, potentiel de développement</li>
-                        <li style="padding: 8px 0;">⛔ <strong>Bas-Droit</strong> : ROE faible + Levier élevé = Situation à risque</li>
+                        <li style="padding: 8px 0;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i><strong>Haut-Gauche</strong> : ROE élevé + Levier faible = Profil idéal</li>
+                        <li style="padding: 8px 0;"><i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 8px;"></i><strong>Haut-Droit</strong> : ROE élevé + Levier élevé = Performance forte mais risquée</li>
+                        <li style="padding: 8px 0;"><i class="fas fa-info-circle" style="color: #3b82f6; margin-right: 8px;"></i><strong>Bas-Gauche</strong> : ROE faible + Levier faible = Prudent, potentiel de développement</li>
+                        <li style="padding: 8px 0;"><i class="fas fa-times-circle" style="color: #ef4444; margin-right: 8px;"></i><strong>Bas-Droit</strong> : ROE faible + Levier élevé = Situation à risque</li>
                     </ul>
                 </div>
                 {risk_html}
                 
-                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">🏛️ Structure Financière et Solidité</h3>
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;"><i class="fas fa-university" style="color: #6366f1; margin-right: 8px;"></i>Structure Financière et Solidité</h3>
                 <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
                     L'analyse de la structure financière est cruciale pour évaluer la <strong>solidité</strong> 
                     et la <strong>solvabilité</strong> des banques. Le ratio de levier et l'equity ratio sont 
@@ -717,7 +717,7 @@ def generate_html():
                 <div class="row">
                     <div class="col-md-4">
                         <div class="metric-box">
-                            <div style="font-size: 1.5rem; margin-bottom: 12px;">📈</div>
+                            <div style="font-size: 1.5rem; margin-bottom: 12px;"><i class="fas fa-chart-line" style="color: #6366f1;"></i></div>
                             <h5 style="font-weight: 600; margin-bottom: 8px;">Rentabilité</h5>
                             <p style="font-size: 0.9rem; color: #64748b; margin: 0;">
                                 ROE et ROA mesurent l'efficacité à générer des profits. 
@@ -727,7 +727,7 @@ def generate_html():
                     </div>
                     <div class="col-md-4">
                         <div class="metric-box">
-                            <div style="font-size: 1.5rem; margin-bottom: 12px;">🛡️</div>
+                            <div style="font-size: 1.5rem; margin-bottom: 12px;"><i class="fas fa-shield-alt" style="color: #6366f1;"></i></div>
                             <h5 style="font-weight: 600; margin-bottom: 8px;">Solidité</h5>
                             <p style="font-size: 0.9rem; color: #64748b; margin: 0;">
                                 Levier et Equity Ratio évaluent la structure financière. 
@@ -737,7 +737,7 @@ def generate_html():
                     </div>
                     <div class="col-md-4">
                         <div class="metric-box">
-                            <div style="font-size: 1.5rem; margin-bottom: 12px;">📊</div>
+                            <div style="font-size: 1.5rem; margin-bottom: 12px;"><i class="fas fa-chart-bar" style="color: #6366f1;"></i></div>
                             <h5 style="font-weight: 600; margin-bottom: 8px;">Croissance</h5>
                             <p style="font-size: 0.9rem; color: #64748b; margin: 0;">
                                 Taux de croissance révèlent la dynamique. 
@@ -778,7 +778,7 @@ def generate_html():
         f.write(html)
     
     print(f"\n{'='*60}")
-    print(f"✨ Dashboard multi-pages généré: {output_file}")
+    print(f"Dashboard multi-pages généré: {output_file}")
     print(f"{'='*60}")
     
     return output_file
