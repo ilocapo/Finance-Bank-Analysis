@@ -1,21 +1,21 @@
-# 📊 Analyse Financière des Banques Françaises
+# Analyse Financière des Banques Françaises
 
 Dashboard interactif professionnel d'analyse comparative des principales banques françaises (BNP Paribas, Société Générale, Crédit Agricole) avec benchmarks sectoriels et projections.
 
-## 🎯 Présentation
+## Présentation
 
 Analyse financière approfondie des trois principales banques françaises sur la période 2021-2024. Ce projet évalue la rentabilité, la solidité financière et les tendances stratégiques à travers 8+ indicateurs clés, des visualisations interactives, et une analyse complète des risques bancaires incluant les normes Bâle III.
 
-## ✨ Fonctionnalités Principales
+## Fonctionnalités Principales
 
-### 📈 Analyses Financières Complètes
+### Analyses Financières Complètes
 - **Ratios de Rentabilité** : ROE, ROA, Marge bénéficiaire
 - **Structure Financière** : Ratio de levier, Equity ratio, Conformité Bâle III
 - **Dynamique de Croissance** : Revenus, Bénéfices nets, Actifs
 - **Analyse de Volatilité** : Écart-types, Coefficient de variation
 - **Score Global** : Évaluation comparative multi-critères
 
-### 🎨 Dashboard Web Professionnel Multi-Pages
+### Dashboard Web Professionnel Multi-Pages
 - **Synthèse** : Vue d'ensemble avec KPIs et graphiques d'évolution historique
 - **Comparaison** : Tableaux détaillés, graphiques radar, analyse risque-rendement
 - **Analyses Détaillées** : Profils enrichis par banque avec forces/faiblesses/recommandations narratives
@@ -32,38 +32,38 @@ Analyse financière approfondie des trois principales banques françaises sur la
 - **Benchmark charts** vs moyenne européenne
 - **Projections graphiques** avec lignes de tendance
 
-### 🔥 Améliorations Récentes (V2.0)
+### Améliorations Récentes (V2.0)
 
-#### ✅ Benchmarks Sectoriels
+#### Benchmarks Sectoriels
 - Comparaison vs benchmarks bancaires européens 2023-2024
 - ROE, Levier, Equity Ratio, Bâle III compliance
 - Identification automatique des sur/sous-performances
 
-#### ✅ Analyse Avancée des Risques
+#### Analyse Avancée des Risques
 - **Volatilité des rendements** : stabilité de la performance
 - **Profils de levier** : risque financier vs benchmark
 - **Conformité Bâle III** : adéquation du capital
 - **Score de risque intégré** : évaluation multi-critères
-- **AI/Tech Impact** : implications de la transformation digitale
+- **Implications technologiques** : impacts de la transformation digitale
 
-#### ✅ Projections Temporelles
+#### Projections Temporelles
 - **Forecast 3 ans** : projections linéaires ROE, levier, marge
 - **Analyse de tendances** : hausse/baisse des indicateurs clés
 - **Scénarios** : cas positifs et risques potentiels
-- **Illustratif** : prévisions basées sur données historiques
+- **Modèle** : prévisions basées sur données historiques
 
-#### ✅ Méthodologie Enrichie
+#### Méthodologie Enrichie
 - **Sources** : Yahoo Finance API, données officielles annuelles
 - **Formules détaillées** : calcul transparent de chaque ratio
 - **Seuils d'interprétation** : repères pour l'analyse qualitative
-- **FAQ méthodologique** : guide pour non-experts
+- **Guide complet** : documentation accessible
 
-#### ✅ Storytelling Visuel
+#### Storytelling et Interprétation
 - **Analyses narratives** : interprétations stratégiques par banque
 - **Contexte réglementaire** : impacts Bâle III, contraintes de capital
 - **Recommandations actionables** : points d'amélioration concrets
 
-## 📂 Structure du Projet
+## Structure du Projet
 
 ```
 finance-banks-analysis/
@@ -81,7 +81,7 @@ finance-banks-analysis/
 └── README.md
 ```
 
-## 🚀 Installation & Utilisation
+## Installation et Utilisation
 
 ### Prérequis
 - Python 3.8+
@@ -120,7 +120,7 @@ Le dashboard peut être hébergé gratuitement sur :
 
 Consulter `HEBERGEMENT.md` pour les instructions détaillées.
 
-## 📊 Données & Méthodologie
+## Données et Méthodologie
 
 ### Sources
 - **API** : Yahoo Finance via `yfinance`
@@ -128,7 +128,7 @@ Consulter `HEBERGEMENT.md` pour les instructions détaillées.
 - **Période** : 2021-2024 (4 années complètes)
 - **Tickers** : BNP.PA, GLE.PA, ACA.PA
 
-### Indicateurs Clés (8+)
+### Indicateurs Clés
 
 | Indicateur | Formule | Interprétation |
 |-----------|---------|-----------------|
@@ -146,7 +146,7 @@ Consulter `HEBERGEMENT.md` pour les instructions détaillées.
 - **Levier** : <10 Très solide | 10-15 Équilibré | >15 Risqué
 - **Equity Ratio** : >8% Forte cap. | 5-8% Acceptable | <5% Vulnérable
 
-## 🎯 Key Insights (2021-2024)
+## Analyses Principales (2021-2024)
 
 ### BNP Paribas
 - **Performance** : ROE en amélioration (8.0% → 9.1%), tendance positive
@@ -163,23 +163,23 @@ Consulter `HEBERGEMENT.md` pour les instructions détaillées.
 - **Risque** : Levier élevé (29.3), modèle mutualiste spécifique
 - **Force** : Marge très solide (27%), efficacité opérationnelle
 
-## 🔒 Conformité Réglementaire
+## Conformité Réglementaire
 
 Tous les indicateurs respectent les normes :
 - **Bâle III** : CET1 ratio, Leverage ratio, ratios de liquidité
-- **SOLVABILITÉ II** : Pour les activités d'assurance (CAA)
+- **Solvabilité II** : Pour les activités d'assurance (CAA)
 - **Reporting CECABANK** : Données officielles CCR
 
-## 📱 Responsivité & Accessibilité
+## Responsivité et Accessibilité
 
 Le dashboard est optimisé pour :
-- ✅ Desktop (1920x1080+)
-- ✅ Tablet (768-1024px)
-- ✅ Mobile (320px+)
-- ✅ Lecteurs d'écran (ARIA labels)
-- ✅ Contraste élevé (WCAG AA)
+- Desktop (1920x1080+)
+- Tablette (768-1024px)
+- Mobile (320px+)
+- Lecteurs d'écran (ARIA labels)
+- Contraste élevé (WCAG AA)
 
-## 🛠 Technologies Utilisées
+## Technologies Utilisées
 
 - **Backend** : Python 3, pandas, numpy, scipy
 - **Visualisations** : Plotly (interactif), Matplotlib
@@ -187,28 +187,28 @@ Le dashboard est optimisé pour :
 - **Données** : yfinance, CSV
 - **Déploiement** : GitHub Pages, Netlify
 
-## 📈 Roadmap Future
+## Évolutions Futures
 
-- [ ] Intégration données temps réel (WebSocket)
-- [ ] Machine Learning : prédictions ARIMA/Prophet
-- [ ] Dashboard Tableau/Power BI interactif
-- [ ] Analyse sentiments actualités bancaires
-- [ ] Comparaison vs banques internationales (EU, US, Asia)
-- [ ] Module stress test (scénarios de crise)
-- [ ] Export PDF personnalisé
+- Intégration données temps réel (WebSocket)
+- Machine Learning : prédictions ARIMA/Prophet
+- Dashboard Tableau/Power BI interactif
+- Analyse sentiments actualités bancaires
+- Comparaison vs banques internationales (EU, US, Asia)
+- Module stress test (scénarios de crise)
+- Export PDF personnalisé
 
-## 📞 Support & Questions
+## Support et Questions
 
 Pour toute question ou suggestion d'amélioration :
-- 📧 Email: [votre email]
-- 🐙 GitHub Issues: [lien repo]
-- 💼 LinkedIn: [votre profil]
+- Email: [votre email]
+- GitHub Issues: [lien repo]
+- LinkedIn: [votre profil]
 
-## 📄 Licence
+## Licence
 
 MIT License - Libre d'utilisation pour projets commerciaux et personnels.
 
-## 🙏 Remerciements
+## Remerciements
 
 - **Yahoo Finance** : Données financières
 - **Plotly** : Visualisations interactives
@@ -219,7 +219,7 @@ MIT License - Libre d'utilisation pour projets commerciaux et personnels.
 
 **Dernière mise à jour** : Janvier 2026
 **Version** : 2.0 (Améliorations V2 - Benchmarks, Risques, Projections)
-**Status** : ✅ Productionpip install -r requirements.txt
+**Status** : Production-Readypip install -r requirements.txt
 
 # Collecter les données
 python src/prepare_data.py
