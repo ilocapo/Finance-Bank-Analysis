@@ -338,6 +338,39 @@ def generate_html():
         </tr>
         """
     
+    # Tableau données complètes
+    data_rows = ""
+    for _, row in df_complete.sort_values(['bank', 'year']).iterrows():
+        revenue_m = row['Total Revenue'] / 1e6 if pd.notna(row['Total Revenue']) else 0
+        income_m = row['Net Income'] / 1e6 if pd.notna(row['Net Income']) else 0
+        assets_m = row['Total Assets'] / 1e6 if pd.notna(row['Total Assets']) else 0
+        liabilities_m = row['Total Liabilities Net Minority Interest'] / 1e6 if pd.notna(row['Total Liabilities Net Minority Interest']) else 0
+        equity_m = row['Stockholders Equity'] / 1e6 if pd.notna(row['Stockholders Equity']) else 0
+        
+        revenue_growth = f"{row['revenue_growth']:.2f}" if pd.notna(row['revenue_growth']) else "—"
+        income_growth = f"{row['net_income_growth']:.2f}" if pd.notna(row['net_income_growth']) else "—"
+        assets_growth = f"{row['assets_growth']:.2f}" if pd.notna(row['assets_growth']) else "—"
+        
+        data_rows += f"""
+            <tr>
+                <td><strong style="color: {COLORS.get(row['bank'], '#000')}">{row['bank']}</strong></td>
+                <td>{int(row['year'])}</td>
+                <td>{revenue_m:,.0f}</td>
+                <td>{income_m:,.0f}</td>
+                <td>{assets_m:,.0f}</td>
+                <td>{liabilities_m:,.0f}</td>
+                <td>{equity_m:,.0f}</td>
+                <td>{row['roe']:.4f}</td>
+                <td>{row['roa']:.4f}</td>
+                <td>{row['profit_margin']:.2f}</td>
+                <td>{row['leverage_ratio']:.2f}</td>
+                <td>{row['equity_ratio']:.2f}</td>
+                <td>{revenue_growth}</td>
+                <td>{income_growth}</td>
+                <td>{assets_growth}</td>
+            </tr>
+        """
+    
     # Analyses détaillées HTML
     analyses_html = ""
     for bank in sorted(df['bank'].unique()):
@@ -349,6 +382,14 @@ def generate_html():
         weaknesses_html = "".join([f'<div class="weakness-item"><i class="fas fa-exclamation-circle"></i> {w}</div>' for w in analysis['weaknesses']])
         recommendations_html = "".join([f'<div class="recommendation-item"><i class="fas fa-arrow-right"></i> {r}</div>' for r in analysis['recommendations']])
         
+        # Générer paragraphe analytique personnalisé
+        roe_trend = "excellente" if bank_analysis['latest_roe'] > 0.10 else "satisfaisante" if bank_analysis['latest_roe'] > 0.08 else "modérée"
+        leverage_assessment = "robuste" if bank_analysis['latest_leverage'] < 12 else "équilibrée" if bank_analysis['latest_leverage'] < 15 else "élevée"
+        margin_quality = "très performante" if bank_analysis['latest_margin'] > 20 else "solide" if bank_analysis['latest_margin'] > 15 else "en amélioration"
+        
+        roe_evolution = "amélioration" if bank_analysis['roe_change'] > 0 else "ajustement"
+        roe_evolution_detail = f"progression de {abs(bank_analysis['roe_change']):.1f}%" if bank_analysis['roe_change'] > 0 else f"recul de {abs(bank_analysis['roe_change']):.1f}%"
+        
         analyses_html += f"""
         <div class="section">
             <div class="analysis-header">
@@ -359,6 +400,27 @@ def generate_html():
                     <h2 style="color: {color}; font-size: 1.75rem; font-weight: 600; margin: 0;">{bank}</h2>
                     <p style="color: #64748b; margin: 4px 0 0;">Analyse Approfondie</p>
                 </div>
+            </div>
+            
+            <div style="background: linear-gradient(to right, #f8fafc, {color}08); padding: 20px; border-radius: 10px; border-left: 3px solid {color}; margin: 20px 0;">
+                <p style="color: #1e293b; line-height: 1.8; margin-bottom: 14px;">
+                    <strong>{bank}</strong> affiche une <strong>rentabilité {roe_trend}</strong> avec un ROE de <strong>{bank_analysis['latest_roe']:.1%}</strong> 
+                    en {latest_year}, reflétant une {roe_evolution} ({roe_evolution_detail}) sur la période analysée. 
+                    Ce niveau de performance positionne la banque dans le {"haut" if bank_analysis['latest_roe'] > 0.09 else "milieu" if bank_analysis['latest_roe'] > 0.06 else "bas"} 
+                    du spectre de rentabilité du secteur bancaire français.
+                </p>
+                <p style="color: #1e293b; line-height: 1.8; margin-bottom: 14px;">
+                    La <strong>structure financière</strong> de {bank} se caractérise par un ratio de levier <strong>{leverage_assessment}</strong> 
+                    de <strong>{bank_analysis['latest_leverage']:.2f}</strong>, indiquant une gestion {"prudente" if bank_analysis['latest_leverage'] < 12 else "équilibrée" if bank_analysis['latest_leverage'] < 15 else "dynamique"} 
+                    du capital. La marge bénéficiaire de <strong>{bank_analysis['latest_margin']:.1f}%</strong> témoigne d'une efficacité opérationnelle {margin_quality}, 
+                    résultat de l'optimisation des coûts et de la maîtrise du mix produits.
+                </p>
+                <p style="color: #1e293b; line-height: 1.8; margin: 0;">
+                    Le <strong>profil stratégique</strong> de {bank} s'inscrit dans une logique de {analysis['summary']['growth_trend'].lower()} 
+                    avec une stabilité {analysis['summary']['stability'].lower()}. Les indicateurs de {latest_year} suggèrent une banque 
+                    {"orientée vers la maximisation de la rentabilité" if bank_analysis['latest_roe'] > 0.09 else "focalisée sur la consolidation" if bank_analysis['roe_change'] < 0 else "en phase d'expansion contrôlée"}, 
+                    adaptant son modèle opérationnel aux contraintes réglementaires et aux opportunités de marché.
+                </p>
             </div>
             
             <div class="metric-grid">
@@ -521,6 +583,9 @@ def generate_html():
                     <a class="nav-link" data-page="analyses"><i class="fas fa-microscope"></i> Analyses Détaillées</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" data-page="donnees"><i class="fas fa-table"></i> Données</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-page="methodologie"><i class="fas fa-book"></i> Méthodologie</a>
                 </li>
             </ul>
@@ -529,7 +594,25 @@ def generate_html():
         <div class="page-section active" id="synthese">
             <div class="section">
                 <h2 class="section-title"><i class="fas fa-star"></i> Synthèse Exécutive</h2>
-                <p>Analyse comparative des 3 principales banques françaises sur la période {df['year'].min()}-{latest_year}.</p>
+                
+                <div style="background: linear-gradient(to right, #f8fafc, #eff6ff); padding: 24px; border-radius: 12px; border-left: 4px solid #6366f1; margin-bottom: 32px;">
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin-bottom: 16px;">
+                        Cette analyse approfondie examine la <strong>performance financière</strong> des trois plus grandes banques françaises 
+                        sur la période <strong>{df['year'].min()}-{latest_year}</strong>. L'étude s'appuie sur 8 indicateurs clés regroupés en trois axes : 
+                        <strong>rentabilité</strong> (ROE, ROA, marge bénéficiaire), <strong>solidité financière</strong> (levier, equity ratio) 
+                        et <strong>dynamique de croissance</strong> (revenus, bénéfices, actifs).
+                    </p>
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin-bottom: 16px;">
+                        Le secteur bancaire français fait face à des <strong>défis structurels</strong> : taux d'intérêt bas prolongés, 
+                        transformation digitale accélérée, et renforcement des exigences réglementaires (Bâle III). Dans ce contexte, 
+                        les banques ont dû <strong>optimiser leur efficacité opérationnelle</strong> tout en maintenant des ratios de solvabilité robustes.
+                    </p>
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.05rem; margin: 0;">
+                        Les résultats révèlent des <strong>stratégies différenciées</strong> : certaines banques privilégient la croissance organique 
+                        avec un levier modéré, tandis que d'autres optimisent leur rentabilité via une gestion plus active du capital. 
+                        Cette diversité de profils offre aux investisseurs et analystes un <strong>spectre complet</strong> du paysage bancaire français.
+                    </p>
+                </div>
                 
                 <div class="metric-grid" style="margin-top: 24px;">
                     <div class="metric-box" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none;">
@@ -576,9 +659,24 @@ def generate_html():
             <div class="section">
                 <h2 class="section-title"><i class="fas fa-balance-scale"></i> Analyse Comparative Approfondie</h2>
                 
+                <div style="background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 32px;">
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.02rem; margin-bottom: 16px;">
+                        Cette section compare les <strong>performances relatives</strong> des trois banques selon une approche multi-dimensionnelle. 
+                        Au-delà des chiffres bruts, l'analyse révèle les <strong>arbitrages stratégiques</strong> entre rentabilité, risque et croissance 
+                        que chaque établissement a effectués.
+                    </p>
+                    <p style="color: #1e293b; line-height: 1.8; font-size: 1.02rem; margin: 0;">
+                        Le <strong>ROE</strong> (Return on Equity) est l'indicateur phare pour les investisseurs, mesurant la capacité à générer des profits 
+                        avec les fonds propres. Le <strong>levier financier</strong> amplifie cette rentabilité mais accroît la vulnérabilité aux chocs. 
+                        L'<strong>équilibre entre ces deux dimensions</strong> définit le profil risque-rendement de chaque banque.
+                    </p>
+                </div>
+                
                 <h3 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 16px;">Tableau Comparatif {latest_year}</h3>
                 <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
-                    Comparaison détaillée des principaux indicateurs de performance et de solidité financière.
+                    Les données ci-dessous présentent un <strong>instantané</strong> de la situation financière la plus récente. 
+                    Observer l'<strong>écart entre ROE et ROA</strong> permet d'évaluer l'effet du levier : un écart important 
+                    indique un usage intensif de l'endettement pour booster la rentabilité des capitaux propres.
                 </p>
                 <table class="comparison-table">
                     <thead>
@@ -641,7 +739,42 @@ def generate_html():
             {analyses_html}
         </div>
         
-        <div class="page-section" id="methodologie">
+        <div class="page-section" id="donnees">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-table"></i> Données Financières Complètes</h2>
+                
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 3px solid #6366f1; margin-bottom: 24px;">
+                    <p style="color: #1e293b; line-height: 1.7; margin: 0;">
+                        Ce tableau présente l'ensemble des <strong>données brutes</strong> utilisées pour cette analyse, 
+                        couvrant la période <strong>{df['year'].min()}-{latest_year}</strong> pour les trois banques. 
+                        Les montants financiers sont exprimés en <strong>dollars US</strong>, les ratios en <strong>valeurs décimales</strong>, 
+                        et les taux de croissance en <strong>pourcentage</strong>.
+                    </p>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="comparison-table" style="font-size: 0.85rem;">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 120px;">Banque</th>
+                                <th style="min-width: 80px;">Année</th>
+                                <th style="min-width: 140px;">Revenus Totaux (M$)</th>
+                                <th style="min-width: 140px;">Bénéfice Net (M$)</th>
+                                <th style="min-width: 140px;">Actifs Totaux (M$)</th>
+                                <th style="min-width: 140px;">Passifs (M$)</th>
+                                <th style="min-width: 140px;">Capitaux Propres (M$)</th>
+                                <th style="min-width: 100px;">ROE</th>
+                                <th style="min-width: 100px;">ROA</th>
+                                <th style="min-width: 110px;">Marge (%)</th>
+                                <th style="min-width: 100px;">Levier</th>
+                                <th style="min-width: 120px;">Equity Ratio (%)</th>
+                                <th style="min-width: 130px;">Croiss. Revenus (%)</th>
+                                <th style="min-width: 140px;">Croiss. Bénéfice (%)</th>
+                                <th style="min-width: 130px;">Croiss. Actifs (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
             <div class="section">
                 <h2 class="section-title"><i class="fas fa-book"></i> Méthodologie & Interprétation</h2>
                 
