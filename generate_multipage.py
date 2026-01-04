@@ -558,6 +558,57 @@ def generate_html():
         .comparison-table tbody tr:hover {{ background: #f8fafc; }}
         
         .footer {{ background: #1e293b; color: white; text-align: center; padding: 40px 20px; margin-top: 50px; }}
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {{
+            .hero-section {{ padding: 40px 0 30px; }}
+            .hero-section h1 {{ font-size: 1.8rem; }}
+            .hero-section p {{ font-size: 0.95rem; }}
+            
+            .nav-container {{ 
+                margin: -20px 10px 20px; 
+                border-radius: 8px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }}
+            .nav-tabs {{ 
+                flex-wrap: nowrap; 
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }}
+            .nav-tabs .nav-link {{ 
+                padding: 16px 20px; 
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }}
+            .nav-tabs .nav-link i {{ display: none; }}
+            
+            .container {{ padding: 0 15px; }}
+            .section {{ padding: 20px; margin: 15px 0; border-radius: 8px; }}
+            .section-title {{ font-size: 1.35rem; }}
+            
+            .metric-grid {{ 
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+            }}
+            .metric-box {{ padding: 14px; }}
+            .metric-value {{ font-size: 1.3rem; }}
+            
+            .analysis-header {{ flex-direction: column; align-items: flex-start; }}
+            .analysis-icon {{ margin-bottom: 12px; }}
+            
+            .row > div {{ margin-bottom: 20px; }}
+            
+            .comparison-table {{ font-size: 0.75rem; }}
+            .comparison-table th,
+            .comparison-table td {{ padding: 10px 8px; }}
+        }}
+        
+        @media (max-width: 480px) {{
+            .hero-section h1 {{ font-size: 1.5rem; }}
+            .metric-grid {{ grid-template-columns: 1fr; }}
+            .nav-tabs .nav-link {{ padding: 14px 16px; font-size: 0.85rem; }}
+        }}
     </style>
 </head>
 <body>
