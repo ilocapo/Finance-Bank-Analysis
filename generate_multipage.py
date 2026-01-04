@@ -774,7 +774,23 @@ def generate_html():
                             </tr>
                         </thead>
                         <tbody>
-
+                            {data_rows}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="background: #eff6ff; padding: 16px; border-radius: 10px; border-left: 3px solid #3b82f6; margin-top: 24px;">
+                    <p style="color: #1e40af; margin: 0; line-height: 1.7;\">
+                        <i class=\"fas fa-info-circle\" style=\"margin-right: 8px;\"></i>
+                        <strong>Note :</strong> Les valeurs monétaires sont exprimées en millions de dollars US. 
+                        Les ratios ROE et ROA sont des décimales (ex: 0.0805 = 8.05%). 
+                        Les croissances marquées "—" correspondent à la première année (2021) sans référence antérieure.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-section" id="methodologie">
             <div class="section">
                 <h2 class="section-title"><i class="fas fa-book"></i> Méthodologie & Interprétation</h2>
                 
