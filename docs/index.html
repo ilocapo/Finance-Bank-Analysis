@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financier - Banques Françaises</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8f9fc; color: #1e293b; line-height: 1.6; }
+        .hero-section {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            color: white; padding: 60px 0 40px; text-align: center;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.15);
+        }
+        .hero-section h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 600; margin-bottom: 12px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        
+        .nav-container {
+            background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin: -30px auto 30px; max-width: 1200px; position: relative; z-index: 10;
+        }
+        .nav-tabs { border: none; padding: 0; display: flex; }
+        .nav-tabs .nav-link {
+            font-family: 'Outfit', sans-serif; font-weight: 500; color: #64748b;
+            border: none; padding: 20px 28px; transition: all 0.3s; cursor: pointer;
+        }
+        .nav-tabs .nav-link:hover { color: #6366f1; background: #f8fafc; }
+        .nav-tabs .nav-link.active { color: #6366f1; border-bottom: 3px solid #6366f1; font-weight: 600; }
+        .nav-tabs .nav-link i { margin-right: 8px; }
+        
+        .page-section { display: none; animation: fadeIn 0.4s; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .section {
+            background: white; border-radius: 12px; padding: 35px; margin: 20px 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;
+        }
+        .section-title {
+            font-family: 'Outfit', sans-serif; font-size: 1.65rem; font-weight: 600;
+            color: #1e293b; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .analysis-header { display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0; }
+        .analysis-icon {
+            width: 50px; height: 50px; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; margin-right: 16px; font-size: 1.5rem;
+        }
+        
+        .metric-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; margin: 20px 0;
+        }
+        .metric-box {
+            background: #f8fafc; padding: 18px; border-radius: 10px;
+            border-left: 3px solid #6366f1; transition: all 0.3s;
+        }
+        .metric-box:hover { transform: translateX(5px); background: #eff6ff; }
+        .metric-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { font-size: 1.5rem; font-weight: 600; color: #1e293b; font-family: 'Outfit', sans-serif; }
+        
+        .strength-item, .weakness-item, .recommendation-item {
+            padding: 12px 16px; margin-bottom: 10px; border-radius: 8px;
+            display: flex; align-items: start; font-size: 0.95rem;
+        }
+        .strength-item { background: #f0fdf4; border-left: 3px solid #10b981; color: #166534; }
+        .weakness-item { background: #fef2f2; border-left: 3px solid #ef4444; color: #991b1b; }
+        .recommendation-item { background: #eff6ff; border-left: 3px solid #3b82f6; color: #1e40af; }
+        .strength-item i, .weakness-item i, .recommendation-item i { margin-right: 10px; margin-top: 2px; }
+        
+        .comparison-table {
+            width: 100%; border-collapse: separate; border-spacing: 0; margin: 20px 0;
+            background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .comparison-table th {
+            background: #f8fafc; padding: 16px; text-align: left;
+            font-weight: 600; color: #1e293b; border-bottom: 2px solid #e2e8f0;
+        }
+        .comparison-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; }
+        .comparison-table tbody tr:hover { background: #f8fafc; }
+        
+        .footer { background: #1e293b; color: white; text-align: center; padding: 40px 20px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    
+    <div class="hero-section">
+        <div class="container">
+            <h1><i class="fas fa-chart-line"></i> Dashboard Financier Multi-Pages</h1>
+            <p>Analyse Approfondie des Banques Françaises 2021 - 2024</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        
+        <div class="nav-container">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-page="synthese"><i class="fas fa-home"></i> Synthèse</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="comparaison"><i class="fas fa-balance-scale"></i> Comparaison</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="analyses"><i class="fas fa-microscope"></i> Analyses Détaillées</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-page="methodologie"><i class="fas fa-book"></i> Méthodologie</a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="page-section active" id="synthese">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-star"></i> Synthèse Exécutive</h2>
+                <p>Analyse comparative des 3 principales banques françaises sur la période 2021-2024.</p>
+                
+                <div class="metric-grid" style="margin-top: 24px;">
+                    <div class="metric-box" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none;">
+                        <div class="metric-label" style="color: white; opacity: 0.9;">PÉRIODE</div>
+                        <div class="metric-value" style="color: white;">2021 - 2024</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">BANQUES</div>
+                        <div class="metric-value">3</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-label">INDICATEURS</div>
+                        <div class="metric-value">8</div>
+                    </div>
+                </div>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 32px 0 16px;">📈 Évolution du ROE</h3>
+                <p style="color: #64748b; line-height: 1.7;">
+                    Le <strong>Return on Equity (ROE)</strong> mesure la rentabilité des capitaux propres. 
+                    Un ROE > 10% est considéré comme excellent dans le secteur bancaire. Ce graphique permet 
+                    d'identifier les tendances à long terme et les points d'inflexion stratégiques.
+                </p>
+                <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>                <div id="roe-chart" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("roe-chart")) {                    Plotly.newPlot(                        "roe-chart",                        [{"line":{"color":"#00915A","width":3},"marker":{"size":10},"mode":"lines+markers","name":"BNP Paribas","x":[2021,2022,2023,2024],"y":[0.0804845359075717,0.0812293276804935,0.0886926023500509,0.091214871582759],"type":"scatter"},{"line":{"color":"#0E6938","width":3},"marker":{"size":10},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","x":[2021,2022,2023,2024],"y":[0.0856677954175645,0.0797666832032953,0.089300284162845,0.0948601258198367],"type":"scatter"},{"line":{"color":"#E60028","width":3},"marker":{"size":10},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","x":[2021,2022,2023,2024],"y":[0.086653967863836,0.0272510079139913,0.0377870405456612,0.0597813709861079],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"text":"\u00c9volution du Return on Equity (ROE)"},"xaxis":{"title":{"text":"Ann\u00e9e"}},"yaxis":{"title":{"text":"ROE"}},"height":500,"hovermode":"x unified"},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">📊 Analyse des Taux de Croissance</h3>
+                <p style="color: #64748b; line-height: 1.7;">
+                    La croissance des revenus, du bénéfice net et des actifs révèle la <strong>dynamique</strong> 
+                    et la <strong>résilience</strong> de chaque banque. Une croissance du bénéfice supérieure à 
+                    celle des revenus indique une amélioration de l'efficacité opérationnelle.
+                </p>
+                <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="growth-chart" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("growth-chart")) {                    Plotly.newPlot(                        "growth-chart",                        [{"line":{"color":"#00915A","width":2},"mode":"lines+markers","name":"BNP Paribas","showlegend":true,"x":[2022,2023,2024],"y":[1.9909502262443368,3.928527932912296,10.270360760023433],"type":"scatter","xaxis":"x","yaxis":"y"},{"line":{"color":"#0E6938","width":2},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":true,"x":[2022,2023,2024],"y":[-3.509837827732865,13.600697471665214,7.990108297092191],"type":"scatter","xaxis":"x","yaxis":"y"},{"line":{"color":"#E60028","width":2},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":true,"x":[2022,2023,2024],"y":[-0.4193334804678872,22.891733156028373,18.37282174981403],"type":"scatter","xaxis":"x","yaxis":"y"},{"line":{"color":"#00915A","width":2},"mode":"lines+markers","name":"BNP Paribas","showlegend":false,"x":[2022,2023,2024],"y":[3.794266441821237,11.443948009748173,6.496583143507984],"type":"scatter","xaxis":"x2","yaxis":"y2"},{"line":{"color":"#0E6938","width":2},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":false,"x":[2022,2023,2024],"y":[-9.20602327173169,19.63814549566529,11.641461877756765],"type":"scatter","xaxis":"x2","yaxis":"y2"},{"line":{"color":"#E60028","width":2},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"x":[2022,2023,2024],"y":[-67.64758021627371,36.60273972602739,68.47172081829123],"type":"scatter","xaxis":"x2","yaxis":"y2"},{"line":{"color":"#00915A","width":2},"mode":"lines+markers","name":"BNP Paribas","showlegend":false,"x":[2022,2023,2024],"y":[1.112340972136816,-2.712306119047292,4.376193083616853],"type":"scatter","xaxis":"x3","yaxis":"y3"},{"line":{"color":"#0E6938","width":2},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":false,"x":[2022,2023,2024],"y":[3.0922078830061484,2.399903465061737,5.49849776057163],"type":"scatter","xaxis":"x3","yaxis":"y3"},{"line":{"color":"#E60028","width":2},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"x":[2022,2023,2024],"y":[1.4571873080468034,4.656542528116381,1.2547899192108414],"type":"scatter","xaxis":"x3","yaxis":"y3"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,0.2888888888888889]},"yaxis":{"anchor":"x","domain":[0.0,1.0]},"xaxis2":{"anchor":"y2","domain":[0.35555555555555557,0.6444444444444445]},"yaxis2":{"anchor":"x2","domain":[0.0,1.0]},"xaxis3":{"anchor":"y3","domain":[0.7111111111111111,1.0]},"yaxis3":{"anchor":"x3","domain":[0.0,1.0]},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Croissance des Revenus (%)","x":0.14444444444444446,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Croissance du B\u00e9n\u00e9fice Net (%)","x":0.5,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Croissance des Actifs (%)","x":0.8555555555555556,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"shapes":[{"line":{"color":"gray","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0,"y1":0,"yref":"y"},{"line":{"color":"gray","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x2 domain","y0":0,"y1":0,"yref":"y2"},{"line":{"color":"gray","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x3 domain","y0":0,"y1":0,"yref":"y3"}],"title":{"text":"Analyse des Taux de Croissance Ann\u00e9e sur Ann\u00e9e"},"height":500,"hovermode":"x unified"},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">📉 Distribution et Volatilité</h3>
+                <p style="color: #64748b; line-height: 1.7;">
+                    Les box plots révèlent la <strong>consistance</strong> de la performance. Une boîte étroite 
+                    indique une performance stable et prévisible, tandis qu'une boîte large suggère une forte 
+                    variabilité selon les années.
+                </p>
+                <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="box-chart" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("box-chart")) {                    Plotly.newPlot(                        "box-chart",                        [{"marker":{"color":"#00915A"},"name":"BNP Paribas","showlegend":true,"y":[0.0804845359075717,0.0812293276804935,0.0886926023500509,0.091214871582759],"type":"box","xaxis":"x","yaxis":"y"},{"marker":{"color":"#0E6938"},"name":"Cr\u00e9dit Agricole","showlegend":true,"y":[0.0856677954175645,0.0797666832032953,0.089300284162845,0.0948601258198367],"type":"box","xaxis":"x","yaxis":"y"},{"marker":{"color":"#E60028"},"name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":true,"y":[0.086653967863836,0.0272510079139913,0.0377870405456612,0.0597813709861079],"type":"box","xaxis":"x","yaxis":"y"},{"marker":{"color":"#00915A"},"name":"BNP Paribas","showlegend":false,"y":[0.003601518954284,0.0036970464173037,0.0042350006694966,0.0043210342089268],"type":"box","xaxis":"x2","yaxis":"y2"},{"marker":{"color":"#0E6938"},"name":"Cr\u00e9dit Agricole","showlegend":false,"y":[0.0028178046293193,0.002481658829439,0.0028994271484672,0.0030682549262224],"type":"box","xaxis":"x2","yaxis":"y2"},{"marker":{"color":"#E60028"},"name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"y":[0.0038542662374886,0.0012290389925247,0.0016042006505603,0.0026691324366319],"type":"box","xaxis":"x2","yaxis":"y2"},{"marker":{"color":"#00915A"},"name":"BNP Paribas","showlegend":false,"y":[16.836128116404932,17.133810045757432,18.372813258558637,17.744041293456807],"type":"box","xaxis":"x3","yaxis":"y3"},{"marker":{"color":"#0E6938"},"name":"Cr\u00e9dit Agricole","showlegend":false,"y":[27.312240033649577,25.699893441828927,27.065745715016625,27.98089071383449],"type":"box","xaxis":"x3","yaxis":"y3"},{"marker":{"color":"#E60028"},"name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"y":[15.56223791657471,5.055961879432624,5.62005455488176,7.9986288064903155],"type":"box","xaxis":"x3","yaxis":"y3"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,0.2888888888888889]},"yaxis":{"anchor":"x","domain":[0.0,1.0]},"xaxis2":{"anchor":"y2","domain":[0.35555555555555557,0.6444444444444445]},"yaxis2":{"anchor":"x2","domain":[0.0,1.0]},"xaxis3":{"anchor":"y3","domain":[0.7111111111111111,1.0]},"yaxis3":{"anchor":"x3","domain":[0.0,1.0]},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Distribution du ROE","x":0.14444444444444446,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Distribution du ROA","x":0.5,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Distribution de la Marge","x":0.8555555555555556,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"title":{"text":"Distribution des Indicateurs - Analyse de la Volatilit\u00e9"},"height":500},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+            </div>
+        </div>
+        
+        <div class="page-section" id="comparaison">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-balance-scale"></i> Analyse Comparative Approfondie</h2>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin-bottom: 16px;">Tableau Comparatif 2024</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    Comparaison détaillée des principaux indicateurs de performance et de solidité financière.
+                </p>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Banque</th>
+                            <th>ROE</th>
+                            <th>ROA</th>
+                            <th>Marge (%)</th>
+                            <th>Levier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td><strong style="color: #00915A">BNP Paribas</strong></td>
+            <td>0.091</td>
+            <td>0.004</td>
+            <td>17.74%</td>
+            <td>20.06</td>
+        </tr>
+        
+        <tr>
+            <td><strong style="color: #0E6938">Crédit Agricole</strong></td>
+            <td>0.095</td>
+            <td>0.003</td>
+            <td>27.98%</td>
+            <td>29.80</td>
+        </tr>
+        
+        <tr>
+            <td><strong style="color: #E60028">Société Générale</strong></td>
+            <td>0.060</td>
+            <td>0.003</td>
+            <td>8.00%</td>
+            <td>21.26</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">🎯 Performance Multi-dimensionnelle</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    Le graphique radar offre une <strong>vue d'ensemble synthétique</strong> en comparant 
+                    simultanément 5 dimensions de performance. Plus la surface couverte est grande, meilleure 
+                    est la performance globale. Un profil équilibré indique une performance homogène.
+                </p>
+                <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="radar-chart" class="plotly-graph-div" style="height:600px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("radar-chart")) {                    Plotly.newPlot(                        "radar-chart",                        [{"fill":"toself","line":{"color":"#00915A","width":2},"name":"BNP Paribas","r":[0.8960837049560056,1.0,0.4877031705497121,1.0,1.0],"theta":["ROE","ROA","Marge B\u00e9n\u00e9f.","Equity Ratio","Solidit\u00e9 (1/Levier)"],"type":"scatterpolar"},{"fill":"toself","line":{"color":"#0E6938","width":2},"name":"Cr\u00e9dit Agricole","r":[1.0,0.24161393630325845,1.0,0.0,0.0],"theta":["ROE","ROA","Marge B\u00e9n\u00e9f.","Equity Ratio","Solidit\u00e9 (1/Levier)"],"type":"scatterpolar"},{"fill":"toself","line":{"color":"#E60028","width":2},"name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","r":[0.0,0.0,0.0,0.8187391305022299,0.8765943161209152],"theta":["ROE","ROA","Marge B\u00e9n\u00e9f.","Equity Ratio","Solidit\u00e9 (1/Levier)"],"type":"scatterpolar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"polar":{"radialaxis":{"visible":true,"range":[0,1]}},"title":{"text":"Performance Multi-dimensionnelle - 2024"},"height":600},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">⚖️ Trade-off Risque-Rendement</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    Ce graphique illustre le <strong>compromis fondamental</strong> entre risque (levier) et 
+                    rendement (ROE). Les lignes médianes divisent l'espace en 4 quadrants stratégiques :
+                </p>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 8px 0;">✅ <strong>Haut-Gauche</strong> : ROE élevé + Levier faible = Profil idéal</li>
+                        <li style="padding: 8px 0;">⚠️ <strong>Haut-Droit</strong> : ROE élevé + Levier élevé = Performance forte mais risquée</li>
+                        <li style="padding: 8px 0;">📊 <strong>Bas-Gauche</strong> : ROE faible + Levier faible = Prudent, potentiel de développement</li>
+                        <li style="padding: 8px 0;">⛔ <strong>Bas-Droit</strong> : ROE faible + Levier élevé = Situation à risque</li>
+                    </ul>
+                </div>
+                <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="risk-chart" class="plotly-graph-div" style="height:600px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("risk-chart")) {                    Plotly.newPlot(                        "risk-chart",                        [{"marker":{"color":"#00915A","line":{"color":"white","width":2},"size":12},"mode":"markers+text","name":"BNP Paribas","text":[2021.0,2022.0,2023.0,2024.0],"textposition":"top center","x":[21.308187571043213,20.93204219833879,19.901343117130804,20.062643888962597],"y":[0.0804845359075717,0.0812293276804935,0.0886926023500509,0.091214871582759],"type":"scatter"},{"marker":{"color":"#0E6938","line":{"color":"white","width":2},"size":12},"mode":"markers+text","name":"Cr\u00e9dit Agricole","text":[2021.0,2022.0,2023.0,2024.0],"textposition":"top center","x":[29.27479953677236,31.00777221545724,29.67502743156177,29.801512515058224],"y":[0.0856677954175645,0.0797666832032953,0.089300284162845,0.0948601258198367],"type":"scatter"},{"marker":{"color":"#E60028","line":{"color":"white","width":2},"size":12},"mode":"markers+text","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","text":[2021.0,2022.0,2023.0,2024.0],"textposition":"top center","x":[21.393345417677963,21.077706435717484,22.399363395225464,21.26447563197449],"y":[0.086653967863836,0.0272510079139913,0.0377870405456612,0.0597813709861079],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"shapes":[{"line":{"color":"gray","dash":"dash"},"opacity":0.5,"type":"line","x0":21.350766494360588,"x1":21.350766494360588,"xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"gray","dash":"dash"},"opacity":0.5,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0.083448561549029,"y1":0.083448561549029,"yref":"y"}],"title":{"text":"Relation Risque-Rendement : ROE vs Ratio de Levier"},"xaxis":{"title":{"text":"Ratio de Levier (Risque \u2192)"}},"yaxis":{"title":{"text":"ROE (Rendement \u2192)"}},"height":600},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+                
+                <h3 style="font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px;">🏛️ Structure Financière et Solidité</h3>
+                <p style="color: #64748b; line-height: 1.7; margin-bottom: 20px;">
+                    L'analyse de la structure financière est cruciale pour évaluer la <strong>solidité</strong> 
+                    et la <strong>solvabilité</strong> des banques. Le ratio de levier et l'equity ratio sont 
+                    des indicateurs clés de la capacité à absorber des chocs économiques (normes Bâle III).
+                </p>
+                <html>
+<head><meta charset="utf-8" /></head>
+<body>
+    <div>                            <div id="structure-chart" class="plotly-graph-div" style="height:800px; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("structure-chart")) {                    Plotly.newPlot(                        "structure-chart",                        [{"line":{"color":"#00915A"},"mode":"lines+markers","name":"BNP Paribas","showlegend":false,"x":[2021,2022,2023,2024],"y":[21.308187571043213,20.93204219833879,19.901343117130804,20.062643888962597],"type":"scatter","xaxis":"x","yaxis":"y"},{"line":{"color":"#00915A"},"mode":"lines+markers","name":"BNP Paribas","showlegend":false,"x":[2021,2022,2023,2024],"y":[4.474796199881266,4.551368973341322,4.774919843688923,4.737203631324984],"type":"scatter","xaxis":"x2","yaxis":"y2"},{"line":{"color":"#00915A"},"mode":"lines+markers","name":"BNP Paribas","showlegend":true,"x":[2021,2022,2023,2024],"y":[2634.444,2663.748,2591.499,2704.908],"type":"scatter","xaxis":"x3","yaxis":"y3"},{"line":{"color":"#00915A"},"mode":"lines+markers","name":"BNP Paribas","showlegend":false,"x":[2021,2022,2023,2024],"y":[117.886,121.237,123.742,128.137],"type":"scatter","xaxis":"x4","yaxis":"y4"},{"line":{"color":"#0E6938"},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":false,"x":[2021,2022,2023,2024],"y":[29.27479953677236,31.00777221545724,29.67502743156177,29.801512515058224],"type":"scatter","xaxis":"x","yaxis":"y"},{"line":{"color":"#0E6938"},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":false,"x":[2021,2022,2023,2024],"y":[3.289222765199824,3.1111470726621846,3.246828580276405,3.2345043817988013],"type":"scatter","xaxis":"x2","yaxis":"y2"},{"line":{"color":"#0E6938"},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":true,"x":[2021,2022,2023,2024],"y":[2073.955,2138.086,2189.398,2309.782],"type":"scatter","xaxis":"x3","yaxis":"y3"},{"line":{"color":"#0E6938"},"mode":"lines+markers","name":"Cr\u00e9dit Agricole","showlegend":false,"x":[2021,2022,2023,2024],"y":[68.217,66.519,71.086,74.71],"type":"scatter","xaxis":"x4","yaxis":"y4"},{"line":{"color":"#E60028"},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"x":[2021,2022,2023,2024],"y":[21.393345417677963,21.077706435717484,22.399363395225464,21.26447563197449],"type":"scatter","xaxis":"x","yaxis":"y"},{"line":{"color":"#E60028"},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"x":[2021,2022,2023,2024],"y":[4.447881998369743,4.5100680180483534,4.245372559996654,4.464823058762222],"type":"scatter","xaxis":"x2","yaxis":"y2"},{"line":{"color":"#E60028"},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":true,"x":[2021,2022,2023,2024],"y":[1463.573,1484.9,1554.045,1573.545],"type":"scatter","xaxis":"x3","yaxis":"y3"},{"line":{"color":"#E60028"},"mode":"lines+markers","name":"Soci\u00e9t\u00e9 G\u00e9n\u00e9rale","showlegend":false,"x":[2021,2022,2023,2024],"y":[65.098,66.97,65.975,70.256],"type":"scatter","xaxis":"x4","yaxis":"y4"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,0.45]},"yaxis":{"anchor":"x","domain":[0.625,1.0]},"xaxis2":{"anchor":"y2","domain":[0.55,1.0]},"yaxis2":{"anchor":"x2","domain":[0.625,1.0]},"xaxis3":{"anchor":"y3","domain":[0.0,0.45]},"yaxis3":{"anchor":"x3","domain":[0.0,0.375]},"xaxis4":{"anchor":"y4","domain":[0.55,1.0]},"yaxis4":{"anchor":"x4","domain":[0.0,0.375]},"annotations":[{"font":{"size":16},"showarrow":false,"text":"Ratio de Levier","x":0.225,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Equity Ratio (%)","x":0.775,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Actifs Totaux (Mds \u20ac)","x":0.225,"xanchor":"center","xref":"paper","y":0.375,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"Capitaux Propres (Mds \u20ac)","x":0.775,"xanchor":"center","xref":"paper","y":0.375,"yanchor":"bottom","yref":"paper"}],"title":{"text":"Analyse de la Structure Financi\u00e8re et de la Solidit\u00e9"},"height":800},                        {"responsive": true}                    )                };                            </script>        </div>
+</body>
+</html>
+                
+                <div class="alert alert-info" style="background: #eff6ff; border: 1px solid #3b82f6; border-left: 4px solid #3b82f6; border-radius: 10px; padding: 20px; margin-top: 24px;">
+                    <h4 style="color: #1e40af; margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Réglementation Bâle III</h4>
+                    <p style="color: #1e40af; margin: 0; line-height: 1.7;">
+                        Les banques doivent maintenir des ratios de fonds propres minimum pour garantir leur stabilité. 
+                        Un <strong>Equity Ratio > 8%</strong> indique une capitalisation forte. Un <strong>levier < 12</strong> 
+                        suggère une structure financière robuste avec un risque modéré.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-section" id="analyses">
+            
+        <div class="section">
+            <div class="analysis-header">
+                <div class="analysis-icon" style="background: #00915A20; color: #00915A;">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div>
+                    <h2 style="color: #00915A; font-size: 1.75rem; font-weight: 600; margin: 0;">BNP Paribas</h2>
+                    <p style="color: #64748b; margin: 4px 0 0;">Analyse Approfondie</p>
+                </div>
+            </div>
+            
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="metric-label">ROE</div>
+                    <div class="metric-value">0.091</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">ROA</div>
+                    <div class="metric-value">0.004</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Marge</div>
+                    <div class="metric-value">17.7%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Levier</div>
+                    <div class="metric-value">20.06</div>
+                </div>
+                <div class="metric-box" style="border-left-color: #10b981;">
+                    <div class="metric-label">Performance</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: #10b981;">Excellente</div>
+                </div>
+                <div class="metric-box" style="border-left-color: #f59e0b;">
+                    <div class="metric-label">Tendance</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: #f59e0b;">Croissance</div>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 24px;">
+                <div class="col-md-6">
+                    <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-thumbs-up" style="color: #10b981;"></i> Points Forts
+                    </h4>
+                    <div class="strength-item"><i class="fas fa-check-circle"></i> ROE supérieur à la moyenne historique (0.091 vs 0.085)</div><div class="strength-item"><i class="fas fa-check-circle"></i> Amélioration du ROE de 13.3% sur la période</div><div class="strength-item"><i class="fas fa-check-circle"></i> Marge bénéficiaire solide de 17.7%</div>
+                </div>
+                <div class="col-md-6">
+                    <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Points d'Amélioration
+                    </h4>
+                    <div class="weakness-item"><i class="fas fa-exclamation-circle"></i> Niveau d'endettement élevé (levier de 20.06)</div>
+                </div>
+            </div>
+            
+            <h4 style="font-size: 1.1rem; font-weight: 600; margin: 24px 0 12px;">
+                <i class="fas fa-lightbulb" style="color: #3b82f6;"></i> Recommandations
+            </h4>
+            <div class="recommendation-item"><i class="fas fa-arrow-right"></i> Renforcer les fonds propres pour réduire le risque financier</div>
+        </div>
+        
+        <div class="section">
+            <div class="analysis-header">
+                <div class="analysis-icon" style="background: #0E693820; color: #0E6938;">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div>
+                    <h2 style="color: #0E6938; font-size: 1.75rem; font-weight: 600; margin: 0;">Crédit Agricole</h2>
+                    <p style="color: #64748b; margin: 4px 0 0;">Analyse Approfondie</p>
+                </div>
+            </div>
+            
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="metric-label">ROE</div>
+                    <div class="metric-value">0.095</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">ROA</div>
+                    <div class="metric-value">0.003</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Marge</div>
+                    <div class="metric-value">28.0%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Levier</div>
+                    <div class="metric-value">29.80</div>
+                </div>
+                <div class="metric-box" style="border-left-color: #10b981;">
+                    <div class="metric-label">Performance</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: #10b981;">Excellente</div>
+                </div>
+                <div class="metric-box" style="border-left-color: #f59e0b;">
+                    <div class="metric-label">Tendance</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: #f59e0b;">Croissance</div>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 24px;">
+                <div class="col-md-6">
+                    <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-thumbs-up" style="color: #10b981;"></i> Points Forts
+                    </h4>
+                    <div class="strength-item"><i class="fas fa-check-circle"></i> ROE supérieur à la moyenne historique (0.095 vs 0.087)</div><div class="strength-item"><i class="fas fa-check-circle"></i> Amélioration du ROE de 10.7% sur la période</div><div class="strength-item"><i class="fas fa-check-circle"></i> Marge bénéficiaire solide de 28.0%</div>
+                </div>
+                <div class="col-md-6">
+                    <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Points d'Amélioration
+                    </h4>
+                    <div class="weakness-item"><i class="fas fa-exclamation-circle"></i> Niveau d'endettement élevé (levier de 29.80)</div>
+                </div>
+            </div>
+            
+            <h4 style="font-size: 1.1rem; font-weight: 600; margin: 24px 0 12px;">
+                <i class="fas fa-lightbulb" style="color: #3b82f6;"></i> Recommandations
+            </h4>
+            <div class="recommendation-item"><i class="fas fa-arrow-right"></i> Renforcer les fonds propres pour réduire le risque financier</div>
+        </div>
+        
+        <div class="section">
+            <div class="analysis-header">
+                <div class="analysis-icon" style="background: #E6002820; color: #E60028;">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div>
+                    <h2 style="color: #E60028; font-size: 1.75rem; font-weight: 600; margin: 0;">Société Générale</h2>
+                    <p style="color: #64748b; margin: 4px 0 0;">Analyse Approfondie</p>
+                </div>
+            </div>
+            
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="metric-label">ROE</div>
+                    <div class="metric-value">0.060</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">ROA</div>
+                    <div class="metric-value">0.003</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Marge</div>
+                    <div class="metric-value">8.0%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Levier</div>
+                    <div class="metric-value">21.26</div>
+                </div>
+                <div class="metric-box" style="border-left-color: #10b981;">
+                    <div class="metric-label">Performance</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: #10b981;">Excellente</div>
+                </div>
+                <div class="metric-box" style="border-left-color: #f59e0b;">
+                    <div class="metric-label">Tendance</div>
+                    <div class="metric-value" style="font-size: 1.2rem; color: #f59e0b;">Déclin</div>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 24px;">
+                <div class="col-md-6">
+                    <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-thumbs-up" style="color: #10b981;"></i> Points Forts
+                    </h4>
+                    <div class="strength-item"><i class="fas fa-check-circle"></i> ROE supérieur à la moyenne historique (0.060 vs 0.053)</div>
+                </div>
+                <div class="col-md-6">
+                    <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Points d'Amélioration
+                    </h4>
+                    <div class="weakness-item"><i class="fas fa-exclamation-circle"></i> Diminution du ROE de 31.0% sur la période</div><div class="weakness-item"><i class="fas fa-exclamation-circle"></i> Marge bénéficiaire à optimiser (8.0%)</div><div class="weakness-item"><i class="fas fa-exclamation-circle"></i> Niveau d'endettement élevé (levier de 21.26)</div>
+                </div>
+            </div>
+            
+            <h4 style="font-size: 1.1rem; font-weight: 600; margin: 24px 0 12px;">
+                <i class="fas fa-lightbulb" style="color: #3b82f6;"></i> Recommandations
+            </h4>
+            <div class="recommendation-item"><i class="fas fa-arrow-right"></i> Optimiser l'efficacité opérationnelle pour améliorer les marges</div><div class="recommendation-item"><i class="fas fa-arrow-right"></i> Renforcer les fonds propres pour réduire le risque financier</div><div class="recommendation-item"><i class="fas fa-arrow-right"></i> Analyser les facteurs de baisse de rentabilité</div>
+        </div>
+        
+        </div>
+        
+        <div class="page-section" id="methodologie">
+            <div class="section">
+                <h2 class="section-title"><i class="fas fa-book"></i> Méthodologie & Interprétation</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 16px;">
+                            <i class="fas fa-database" style="color: #6366f1;"></i> Sources de Données
+                        </h4>
+                        <p><strong>API :</strong> Yahoo Finance via yfinance</p>
+                        <p><strong>Type :</strong> Données annuelles officielles (Income Statement & Balance Sheet)</p>
+                        <p><strong>Période :</strong> 2021 - 2024 (4 années)</p>
+                        
+                        <h4 style="font-size: 1.2rem; font-weight: 600; margin: 24px 0 16px;">
+                            <i class="fas fa-calculator" style="color: #6366f1;"></i> Formules de Calcul
+                        </h4>
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 3px solid #6366f1;">
+                            <p style="margin-bottom: 12px;"><strong>ROE</strong> = Net Income / Stockholders' Equity</p>
+                            <p style="margin-bottom: 12px;"><strong>ROA</strong> = Net Income / Total Assets</p>
+                            <p style="margin-bottom: 12px;"><strong>Marge</strong> = (Net Income / Total Revenue) × 100</p>
+                            <p style="margin-bottom: 12px;"><strong>Levier</strong> = Total Liabilities / Stockholders' Equity</p>
+                            <p style="margin-bottom: 12px;"><strong>Equity Ratio</strong> = (Stockholders' Equity / Total Assets) × 100</p>
+                            <p style="margin: 0;"><strong>Croissance</strong> = Variation année sur année (%)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h4 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 16px;">
+                            <i class="fas fa-chart-line" style="color: #6366f1;"></i> Seuils d'Interprétation
+                        </h4>
+                        
+                        <div style="background: #f0fdf4; padding: 16px; border-radius: 10px; border-left: 3px solid #10b981; margin-bottom: 16px;">
+                            <p style="font-weight: 600; color: #166534; margin-bottom: 8px;">ROE (Return on Equity)</p>
+                            <ul style="margin: 0; padding-left: 20px; color: #166534;">
+                                <li>> 10% : Excellent</li>
+                                <li>8-10% : Bon</li>
+                                <li>5-8% : Acceptable</li>
+                                <li>< 5% : Faible</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #eff6ff; padding: 16px; border-radius: 10px; border-left: 3px solid #3b82f6; margin-bottom: 16px;">
+                            <p style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">Ratio de Levier</p>
+                            <ul style="margin: 0; padding-left: 20px; color: #1e40af;">
+                                <li>< 10 : Très solide</li>
+                                <li>10-15 : Équilibré</li>
+                                <li>> 15 : Risque élevé</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #fef3c7; padding: 16px; border-radius: 10px; border-left: 3px solid #f59e0b; margin-bottom: 16px;">
+                            <p style="font-weight: 600; color: #92400e; margin-bottom: 8px;">Equity Ratio</p>
+                            <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+                                <li>> 8% : Capitalisation forte</li>
+                                <li>5-8% : Acceptable</li>
+                                <li>< 5% : Vulnérabilité accrue</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 10px; border-left: 3px solid #64748b;">
+                            <p style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">Coefficient de Variation (CV)</p>
+                            <ul style="margin: 0; padding-left: 20px; color: #475569;">
+                                <li>< 20% : Stabilité élevée</li>
+                                <li>20-40% : Stabilité modérée</li>
+                                <li>> 40% : Forte volatilité</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 style="font-size: 1.2rem; font-weight: 600; margin: 32px 0 16px;">
+                    <i class="fas fa-lightbulb" style="color: #6366f1;"></i> Guide d'Analyse
+                </h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="metric-box">
+                            <div style="font-size: 1.5rem; margin-bottom: 12px;">📈</div>
+                            <h5 style="font-weight: 600; margin-bottom: 8px;">Rentabilité</h5>
+                            <p style="font-size: 0.9rem; color: #64748b; margin: 0;">
+                                ROE et ROA mesurent l'efficacité à générer des profits. 
+                                Comparer à la moyenne historique et aux concurrents.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-box">
+                            <div style="font-size: 1.5rem; margin-bottom: 12px;">🛡️</div>
+                            <h5 style="font-weight: 600; margin-bottom: 8px;">Solidité</h5>
+                            <p style="font-size: 0.9rem; color: #64748b; margin: 0;">
+                                Levier et Equity Ratio évaluent la structure financière. 
+                                Un levier faible réduit le risque de solvabilité.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-box">
+                            <div style="font-size: 1.5rem; margin-bottom: 12px;">📊</div>
+                            <h5 style="font-weight: 600; margin-bottom: 8px;">Croissance</h5>
+                            <p style="font-size: 0.9rem; color: #64748b; margin: 0;">
+                                Taux de croissance révèlent la dynamique. 
+                                Une croissance des bénéfices > revenus = gains d'efficacité.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <h4><i class="fas fa-graduation-cap"></i> Projet Portfolio Data Science</h4>
+        <p>Analyse financière approfondie des banques françaises</p>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(this.getAttribute('data-page')).classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
